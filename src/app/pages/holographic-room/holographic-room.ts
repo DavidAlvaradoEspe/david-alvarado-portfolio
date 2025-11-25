@@ -1,25 +1,38 @@
-import {Component, ElementRef, NgZone, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
-import {BabylonSceneService} from '../../@core/services/babylon-scene';
-import {MeshBuilder} from '@babylonjs/core/Meshes/meshBuilder';
-import {GridMaterial} from '@babylonjs/materials/grid/gridMaterial';
-import {Color3, Color4} from '@babylonjs/core/Maths/math.color';
-import {PuzzleStore} from '../../@core/store/puzzle.store';
-import {SplashScreenService} from '../../shared/components/splash-screen/splash-screen-service';
-import {Vector3} from '@babylonjs/core/Maths/math.vector';
-import {CV_DATA, CVSection} from '../../shared/mockedData/data';
-import {StarfieldShaderService} from './starfield-shader.service';
-import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial';
-import {Mesh} from '@babylonjs/core/Meshes/mesh';
-import {AbstractMesh} from '@babylonjs/core/Meshes/abstractMesh';
-import {Animation} from '@babylonjs/core/Animations/animation';
-import {ActionManager} from '@babylonjs/core/Actions/actionManager';
-import {ExecuteCodeAction} from '@babylonjs/core/Actions/directActions';
-import {CubicEase, EasingFunction} from '@babylonjs/core/Animations/easing';
-import {DynamicTexture} from '@babylonjs/core/Materials/Textures/dynamicTexture';
-import {ParticleSystem} from '@babylonjs/core/Particles/particleSystem';
-import {Texture} from '@babylonjs/core/Materials/Textures/texture';
-import {MeshParticleEmitter} from '@babylonjs/core/Particles/EmitterTypes/meshParticleEmitter';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { BabylonSceneService } from '../../@core/services/babylon-scene';
+import { PuzzleStore } from '../../@core/store/puzzle.store';
+import { SplashScreenService } from '../../shared/components/splash-screen/splash-screen-service';
+import { CV_DATA, CVSection } from '../../shared/mockedData/data';
+import { StarfieldShaderService } from './starfield-shader.service';
+import { isMobileDevice } from '../../@core/utils'; // Assuming you might need this utils
 
+// --- BABYLON CORE ---
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
+import { ActionManager } from '@babylonjs/core/Actions/actionManager';
+import { ExecuteCodeAction } from '@babylonjs/core/Actions/directActions';
+
+// --- MESHES ---
+import { Mesh } from '@babylonjs/core/Meshes/mesh';
+import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+// OPTIMIZATION TIP: If you only create simple shapes (like planes/boxes),
+// replace MeshBuilder with: import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
+
+// --- MATERIALS & TEXTURES ---
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+import { GridMaterial } from '@babylonjs/materials/grid/gridMaterial';
+
+// --- ANIMATION ---
+import { Animation } from '@babylonjs/core/Animations/animation';
+import { CubicEase, EasingFunction } from '@babylonjs/core/Animations/easing';
+
+// --- PARTICLES (CRITICAL FIX) ---
+import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
+import { MeshParticleEmitter } from '@babylonjs/core/Particles/EmitterTypes/meshParticleEmitter';
+import "@babylonjs/core/Particles/particleSystemComponent";
 @Component({
   selector: 'app-holographic-room',
   imports: [],

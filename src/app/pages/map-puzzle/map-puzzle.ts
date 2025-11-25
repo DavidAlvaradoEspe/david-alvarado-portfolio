@@ -1,39 +1,55 @@
-import {Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZone, signal} from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZone, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-// Loaders
+
+// --- BABYLON IMPORTS ---
+
 import "@babylonjs/loaders/glTF";
 
-// Rendering Effects
+// 2. Side-Effects
+import "@babylonjs/core/Particles/particleSystemComponent";
+import "@babylonjs/core/Particles/webgl2ParticleSystem";
+import "@babylonjs/core/Loading/Plugins";
+
+// 3. Rendering Effects
 import { GlowLayer } from '@babylonjs/core/Layers/glowLayer';
 import '@babylonjs/core/PostProcesses/RenderPipeline/postProcessRenderPipelineManager';
 import '@babylonjs/core/PostProcesses/RenderPipeline/postProcessRenderEffect';
 import '@babylonjs/core/Layers/effectLayerSceneComponent';
+
+// 4. Particles (Direct Imports)
 import { GPUParticleSystem } from '@babylonjs/core/Particles/gpuParticleSystem';
 import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
-import {SphereParticleEmitter} from '@babylonjs/core';
+import { SphereParticleEmitter } from '@babylonjs/core/Particles/EmitterTypes/sphereParticleEmitter';
 
-// Core Types & Logic
+// 5. Core Types & Logic
 import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { PBRMaterial } from '@babylonjs/core/Materials/PBR/pbrMaterial';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
-import { Animation } from '@babylonjs/core/Animations/animation';
-import { QuadraticEase } from '@babylonjs/core/Animations/easing';
-import { PointerEventTypes, PointerInfo } from '@babylonjs/core/Events/pointerEvents';
-import { Nullable } from '@babylonjs/core/types';
-import { Observer } from '@babylonjs/core/Misc/observable';
-import { Scene } from '@babylonjs/core/scene';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Texture } from '@babylonjs/core/Materials/Textures/texture';
 
+// Animations
+import { Animation } from '@babylonjs/core/Animations/animation';
+import { QuadraticEase } from '@babylonjs/core/Animations/easing';
+
+// Events & Observables
+import { PointerEventTypes, PointerInfo } from '@babylonjs/core/Events/pointerEvents';
+import { Observer } from '@babylonjs/core/Misc/observable';
+import { Nullable } from '@babylonjs/core/types';
+
+// Scene & Assets
+import { Scene } from '@babylonjs/core/scene';
+import { AssetContainer } from '@babylonjs/core/assetContainer';
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
+
+// --- APP IMPORTS ---
 import { BabylonSceneService } from '../../@core/services/babylon-scene';
 import { SplashScreenService } from '../../shared/components/splash-screen/splash-screen-service';
-import {AssetContainer} from '@babylonjs/core/assetContainer';
 import { PuzzleStore } from '../../@core/store/puzzle.store';
-import {Vector3} from '@babylonjs/core/Maths/math.vector';
-import {MeshBuilder} from '@babylonjs/core/Meshes/meshBuilder';
-import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial';
-import {isMobileDevice} from '../../@core/utils';
+import { isMobileDevice } from '../../@core/utils';
 
 type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 

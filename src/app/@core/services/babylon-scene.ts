@@ -1,28 +1,46 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
+
+// --- CORE ENGINE ---
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { Scene, SceneOptions } from "@babylonjs/core/scene";
-import { FramingBehavior } from "@babylonjs/core/Behaviors/Cameras/framingBehavior";
-import { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
+import { Nullable } from '@babylonjs/core/types';
+
+// --- CAMERAS & INPUTS ---
+import { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
+import { FramingBehavior } from "@babylonjs/core/Behaviors/Cameras/framingBehavior";
+
+// --- LIGHTS ---
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { PointLight } from '@babylonjs/core/Lights/pointLight';
+import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent";
+
+// --- LOADING & ASSETS ---
 import { ISceneLoaderProgressEvent, LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { AssetContainer } from '@babylonjs/core/assetContainer';
-import { BoundingInfo } from '@babylonjs/core/Culling/boundingInfo';
-import { EnvironmentHelper } from '@babylonjs/core/Helpers/environmentHelper';
+import "@babylonjs/loaders/glTF";
+
+// --- MESHES & GEOMETRY ---
+import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import { Nullable } from '@babylonjs/core/types';
-import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+import { BoundingInfo } from '@babylonjs/core/Culling/boundingInfo';
+
+// --- MATERIALS  ---
+
+import "@babylonjs/core/Materials/PBR/pbrMaterial";
 import { GlowLayer } from '@babylonjs/core/Layers/glowLayer';
-import {removeDuplicateInspectorStyles} from '../utils';
 
-
-// Side-effects required for Animation and Environment
-import '@babylonjs/core/Animations/animatable';
+// --- ENVIRONMENT ---
+import { EnvironmentHelper } from '@babylonjs/core/Helpers/environmentHelper';
 import '@babylonjs/core/Materials/Textures/Loaders/envTextureLoader';
 import '@babylonjs/core/Helpers/sceneHelpers';
+
+// --- ANIMATION
+import '@babylonjs/core/Animations/animatable';
+
+import { removeDuplicateInspectorStyles } from '../utils';
 
 // Configuration Constants
 const CAMERA_CONFIG = {
