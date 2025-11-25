@@ -105,7 +105,7 @@ export class BabylonSceneService implements OnDestroy {
     if (sceneOptions.allowCamControls) this.allowCamControls(true);
     if (sceneOptions.createGlowLayer && this.scene) {
       this.glowLayer = new GlowLayer("glow", this.scene);
-      this.glowLayer.intensity = 1;
+      this.glowLayer.intensity = 0.8;
     }
     this.showDebugLayer();
   }

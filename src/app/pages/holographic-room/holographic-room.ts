@@ -12,10 +12,13 @@ import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial';
 import {Mesh} from '@babylonjs/core/Meshes/mesh';
 import {AbstractMesh} from '@babylonjs/core/Meshes/abstractMesh';
 import {Animation} from '@babylonjs/core/Animations/animation';
-import { ActionManager } from '@babylonjs/core/Actions/actionManager';
-import { ExecuteCodeAction } from '@babylonjs/core/Actions/directActions';
-import { CubicEase, EasingFunction } from '@babylonjs/core/Animations/easing';
-import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture';
+import {ActionManager} from '@babylonjs/core/Actions/actionManager';
+import {ExecuteCodeAction} from '@babylonjs/core/Actions/directActions';
+import {CubicEase, EasingFunction} from '@babylonjs/core/Animations/easing';
+import {DynamicTexture} from '@babylonjs/core/Materials/Textures/dynamicTexture';
+import {ParticleSystem} from '@babylonjs/core/Particles/particleSystem';
+import {Texture} from '@babylonjs/core/Materials/Textures/texture';
+import {MeshParticleEmitter} from '@babylonjs/core/Particles/EmitterTypes/meshParticleEmitter';
 
 @Component({
   selector: 'app-holographic-room',
@@ -84,9 +87,9 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
         camera.radius = 35;
         camera.beta = Math.PI / 2.3;
         camera.alpha = Math.PI * 2;
-        camera.wheelPrecision = 40;
-        camera.angularSensibilityX = 1000; // Faster horizontal rotation (default 3000)
-        camera.angularSensibilityY = 1000; // Faster vertical/pitch rotation (default 3000)
+        camera.wheelPrecision = 30;
+        camera.angularSensibilityX = 1500;
+        camera.angularSensibilityY = 1500;
 
         camera.lowerRadiusLimit = 5;
         camera.upperRadiusLimit = 80;
@@ -189,46 +192,24 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       if (loadedMeshes.length > 0) {
         const treasureMap = loadedMeshes[0] as AbstractMesh;
         treasureMap.parent = coreGroup;
-        treasureMap.scaling = new Vector3(0.5, 0.5, 0.5);
+        treasureMap.scaling = new Vector3(1, 1, 1);
 
         loadedMeshes.forEach((mesh) => {
+          mesh.isPickable = false;
           if (mesh.material) {
             const greenMat = new StandardMaterial("treasureMapGreen", scene);
-            greenMat.diffuseColor = Color3.FromHexString("#00aa00");
-            greenMat.specularColor = Color3.FromHexString("#33ff33");
-            greenMat.emissiveColor = Color3.FromHexString("#33ff33");
-            greenMat.alpha = 0.7;
+            greenMat.emissiveColor = Color3.FromHexString("#038a03");
+            greenMat.alpha = 0.3;
             mesh.material = greenMat;
           }
-
-          const glowLayer = this.babylonService.currentGlowLayer;
-          if (glowLayer && mesh) {
-            glowLayer.addExcludedMesh(mesh as any);
-          }
         });
-
-        const scaleAnim = new Animation(
-          "treasureMapPulse",
-          "scaling",
-          30,
-          Animation.ANIMATIONTYPE_VECTOR3,
-          Animation.ANIMATIONLOOPMODE_CYCLE
-        );
-
-        const scaleKeys = [];
-        scaleKeys.push({ frame: 0, value: new Vector3(0.5, 0.5, 0.5) });
-        scaleKeys.push({ frame: 90, value: new Vector3(0.55, 0.55, 0.55) }); // 10% pulse
-        scaleKeys.push({ frame: 180, value: new Vector3(0.5, 0.5, 0.5) });
-        scaleAnim.setKeys(scaleKeys);
-        treasureMap.animations.push(scaleAnim);
-        scene.beginAnimation(treasureMap, 0, 180, true);
 
       }
     } catch (error) {
       console.error("Failed to load treasure_map.glb, using fallback sphere", error);
 
       const planet = MeshBuilder.CreateSphere("corePlanet", {
-        diameter: 3,
+        diameter: 10,
         segments: 64
       }, scene);
       planet.parent = coreGroup;
@@ -249,16 +230,16 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     });
 
     // ========================================
-    // RING 1 - Static solid ring
+    // RING 1
     // ========================================
     const ring1 = MeshBuilder.CreateTorus("ring1", {
-      diameter: 16,
+      diameter: 25,
       thickness: 0.12,
       tessellation: 48
     }, scene);
     ring1.parent = coreGroup;
     ring1.position = Vector3.Zero();
-    ring1.rotation.x = Math.PI / 4;
+    ring1.rotation.x = Math.PI + Math.PI/8;
     ring1.rotation.y = 0;
     ring1.rotation.z = 0;
 
@@ -272,24 +253,19 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     // ========================================
     // RING 2
     // ========================================
-    const ring2Base = MeshBuilder.CreateTorus("ring2Base", {
-      diameter: 16,
-      thickness: 1,
-      tessellation: 48
-    }, scene);
-    ring2Base.parent = coreGroup;
-    ring2Base.position = Vector3.Zero();
-    ring2Base.rotation.x = 0;
-    ring2Base.rotation.y = Math.PI / 2;
-    ring2Base.rotation.z = Math.PI * 1.8 ;
+    const particleSystem = this.createParticlesRing();
+    const ring2Base = particleSystem?.emitter as AbstractMesh;
+    if(ring2Base)
+    {
+      ring2Base.parent = coreGroup;
+      ring2Base.position = Vector3.Zero();
+      ring2Base.rotation.x = Math.PI - Math.PI/8;
+      ring2Base.rotation.y = 0;
+      ring2Base.rotation.z = 0;
 
-    // Gaseous material
-    const ring2BaseMat = new StandardMaterial("ring2BaseMat", scene);
-    ring2BaseMat.emissiveColor = Color3.FromHexString("#00aa00"); // Darker green
-    ring2BaseMat.diffuseColor = Color3.FromHexString("#002200");
-    ring2BaseMat.specularColor = Color3.Black();
-    ring2BaseMat.alpha = 0.3;
-    ring2Base.material = ring2BaseMat;
+    }
+
+
 
 
     return coreGroup;
@@ -309,7 +285,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
       const pos = new Vector3(x, y, z);
 
-      const color = "#00FF00";
+      const color = "#00ffff";
       const node = this.createOrbitalNode(section.title, pos, color, () => {
         this.onNodeClicked(section, node);
       });
@@ -432,9 +408,56 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     // Create the line mesh
     const points = [start, end];
     const line = MeshBuilder.CreateLines("beam", { points: points }, this.babylonService.currentScene);
-    line.color = Color3.FromHexString("#00FF00");
+    line.color = Color3.FromHexString("#00ffff");
     line.alpha = 0.3;
     line.isPickable = false;
+  }
+
+  createParticlesRing(){
+    const scene = this.babylonService.currentScene;
+    if (!scene) return;
+    const torusEmitter = MeshBuilder.CreateTorus("torusEmitter", {
+      diameter: 25,
+      thickness: 0.5,
+      tessellation: 48 },
+      scene);
+    torusEmitter.isVisible = false;
+    torusEmitter.scaling.y = 0.01;
+    const cloudSystem = new ParticleSystem("clouds", 1000, scene);
+
+    cloudSystem.particleTexture = new Texture("assets/textures/flame.png", scene);
+
+    cloudSystem.emitter = torusEmitter;
+
+    cloudSystem.particleEmitterType = new MeshParticleEmitter(torusEmitter);
+
+
+    cloudSystem.color1 = new Color4(0.2, 1.0, 0.3, 0.8);
+    cloudSystem.color2 = new Color4(0.0, 1.0, 0.1, 0.7);
+    cloudSystem.colorDead = new Color4(0.0, 0.5, 0.1, 0.0);
+
+    cloudSystem.minSize = 0.8;
+    cloudSystem.maxSize = 1.5;
+
+    cloudSystem.minLifeTime = 0.5;
+    cloudSystem.maxLifeTime = 1.2;
+
+    cloudSystem.emitRate = 1000;
+
+
+    cloudSystem.gravity = new Vector3(0, 0, 0);
+
+    cloudSystem.minEmitPower = 0;
+    cloudSystem.maxEmitPower = 0;
+
+    cloudSystem.minAngularSpeed = 0;
+    cloudSystem.maxAngularSpeed = Math.PI*2;
+
+
+    cloudSystem.blendMode = ParticleSystem.BLENDMODE_ADD;
+
+    cloudSystem.start();
+    return cloudSystem;
   }
 
   private createHolographicLabel(text: string, parent: AbstractMesh, _colorHex: string) {
@@ -456,11 +479,11 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     ctx.clearRect(0, 0, 2048, 512);
 
     const mainColor = "#ffffff"; // Pure white for core text
-    const blueGlow = "#4da6ff"; // Bright blue glow
+    const blueGlow = "#003875"; // Bright blue glow
     const darkOutline = "#000000"; // Pure black outline for maximum contrast
 
     const fontSize = 140;
-    ctx.font = `700 ${fontSize}px "Segoe UI", "Century Gothic", "Futura", "Trebuchet MS", sans-serif`;
+    ctx.font = `700 ${fontSize}px "TreasurePlanet", sans-serif`;
 
     // Center the text
     const textMetrics = ctx.measureText(text.toUpperCase());
