@@ -37,7 +37,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.splashService.show = true;
     this.puzzleStore.setLoading(true);
-    this.splashService.updateMessage("Initializing Holographic Interface...");
+    this.splashService.updateMessage("INITIALIZING");
 
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => this.initScene(), 0);
@@ -72,18 +72,16 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
         return;
       }
 
-      scene.clearColor = new Color4(0.02, 0.02, 0.08, 1); // Very dark blue fallback
+      scene.clearColor = new Color4(0.02, 0.02, 0.08, 1);
 
      const camera = this.babylonService.currentCamera;
       if (camera) {
         camera.radius = 35;
         camera.beta = Math.PI / 2.3;
         camera.alpha = Math.PI * 2;
-
-        // Camera zoom controls - optimized for 100 diameter universe
-        camera.wheelPrecision = 50; // Lower value = faster zoom (default 200)
-        camera.angularSensibilityX = 1500; // Faster horizontal rotation (default 3000)
-        camera.angularSensibilityY = 1500; // Faster vertical/pitch rotation (default 3000)
+        camera.wheelPrecision = 40;
+        camera.angularSensibilityX = 1000; // Faster horizontal rotation (default 3000)
+        camera.angularSensibilityY = 1000; // Faster vertical/pitch rotation (default 3000)
 
         camera.lowerRadiusLimit = 5;
         camera.upperRadiusLimit = 80;
@@ -94,23 +92,16 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
         this.starfieldShader.initStarfieldEffect(scene, camera);
       }
 
-      // Create the 3D environment
       this.createGridUniverse();
 
-      // Load galaxy background model
       await this.loadGalaxyModel();
 
-      // Load central hologram with treasure_map.glb model (async)
       await this.createCentralHologram();
 
       this.spawnCVConstellations();
 
-      // CRITICAL: Start the render loop
       this.babylonService.startAnimation();
 
-      console.log('Holographic room initialized successfully');
-
-      // Finalize loading state
       this.ngZone.run(() => {
         this.puzzleStore.setLoading(false);
         setTimeout(() => {
@@ -133,17 +124,16 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     const gridSphere = MeshBuilder.CreateSphere("universe", { diameter: 100, segments: 64 }, scene);
     const gridMat = new GridMaterial("gridMat", scene);
     gridMat.majorUnitFrequency = 5;
-    gridMat.minorUnitVisibility = 0.4;
+    gridMat.minorUnitVisibility = 1;
     gridMat.gridRatio = 4;
-    gridMat.mainColor = Color3.FromHexString("#005555"); // Brighter cyan base for natural glow
-    gridMat.lineColor = Color3.FromHexString("#00ffff"); // Very bright cyan lines - will glow naturally
+    gridMat.mainColor = Color3.FromHexString("#005555");
+    gridMat.lineColor = Color3.FromHexString("#00ffff");
     gridMat.opacity = 0.4;
     gridMat.backFaceCulling = false;
 
     gridSphere.material = gridMat;
     gridSphere.isPickable = false;
 
-    // Grid will glow naturally through the GlowLayer without custom selector
   }
 
   private async loadGalaxyModel() {
@@ -151,69 +141,45 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     if (!scene) return;
 
     try {
-      this.splashService.updateMessage("Loading galaxy background...");
+      this.splashService.updateMessage("LOADING UNIVERSE");
 
-      const assetContainer = await this.babylonService.loadModel("assets/models/solarsystem_hologram_with_grid.glb");
+      const assetContainer = await this.babylonService.loadModel("assets/models/solar_system.glb");
       assetContainer.addAllToScene();
 
-
-
-      // Configure all meshes from the galaxy model
       const loadedMeshes = assetContainer.meshes;
 
       if (loadedMeshes.length > 0) {
         const galaxyRoot = loadedMeshes[0] as AbstractMesh;
 
-        // Position and scale the galaxy
         galaxyRoot.position = Vector3.Zero();
-        galaxyRoot.scaling = new Vector3(0.1, 0.1, 0.1); // Large scale for background effect
+        galaxyRoot.scaling = new Vector3(0.1, 0.1, 0.1);
 
-        // Configure all child meshes
         loadedMeshes.forEach((mesh) => {
-          mesh.isPickable = false; // Not interactive
-
-          // Optional: Apply or modify materials for holographic effect
+          mesh.isPickable = false;
           if (mesh.material) {
             const material = mesh.material as StandardMaterial;
-            material.alpha = 0.4; // Semi-transparent for background effect
+            material.alpha = 0.4;
             material.backFaceCulling = false;
           }
-
-          // Exclude from glow layer to prevent performance issues
           const glowLayer = this.babylonService.currentGlowLayer;
           if (glowLayer && mesh) {
             glowLayer.addExcludedMesh(mesh as any);
           }
         });
-
-        // Optional: Add slow rotation to galaxy
-    /*    scene.onBeforeRenderObservable.add(() => {
-          galaxyRoot.rotation.y += 0.0002; // Very slow rotation
-        });
-*/
-        console.log('Galaxy model loaded successfully');
       }
     } catch (error) {
       console.error("Failed to load galaxy.glb:", error);
-      // Continue without galaxy - it's not critical
     }
   }
 
   private async createCentralHologram(): Promise<AbstractMesh> {
     const scene = this.babylonService.currentScene;
     if (!scene) throw new Error("Scene not initialized");
-
     const coreGroup = new Mesh("coreGroup", scene);
-
-    // ========================================
-    // LOAD TREASURE MAP MODEL (treasure_map.glb)
-    // Apply green material WITHOUT glow effect
-    // ========================================
     try {
       const assetContainer = await this.babylonService.loadModel("assets/models/treasure_map.glb");
       assetContainer.addAllToScene();
 
-      // Find the root mesh of the loaded model
       const loadedMeshes = assetContainer.meshes;
       if (loadedMeshes.length > 0) {
         const treasureMap = loadedMeshes[0] as AbstractMesh;
@@ -236,7 +202,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
           }
         });
 
-        // PULSE EFFECT - Gentle breathing animation
         const scaleAnim = new Animation(
           "treasureMapPulse",
           "scaling",
@@ -249,7 +214,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
         scaleKeys.push({ frame: 0, value: new Vector3(0.5, 0.5, 0.5) });
         scaleKeys.push({ frame: 90, value: new Vector3(0.55, 0.55, 0.55) }); // 10% pulse
         scaleKeys.push({ frame: 180, value: new Vector3(0.5, 0.5, 0.5) });
-
         scaleAnim.setKeys(scaleKeys);
         treasureMap.animations.push(scaleAnim);
         scene.beginAnimation(treasureMap, 0, 180, true);
@@ -258,7 +222,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error("Failed to load treasure_map.glb, using fallback sphere", error);
 
-      // Fallback: Create a green sphere if model fails to load
       const planet = MeshBuilder.CreateSphere("corePlanet", {
         diameter: 3,
         segments: 64
@@ -272,14 +235,8 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       planetMat.alpha = 1.0;
       planet.material = planetMat;
 
-      // NO ROTATION - Planet is static
     }
 
-    // ========================================
-    // FLOATING EFFECT - Gentle up/down movement
-    // Applied to entire coreGroup (planet + rings together)
-    // Performant sine wave animation
-    // ========================================
     let floatTime = 0;
     scene.onBeforeRenderObservable.add(() => {
       floatTime += 0.03; // Fast movement speed
@@ -287,13 +244,12 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     });
 
     // ========================================
-    // RING 1 - Static solid ring (no animation)
-    // Smaller and optimized for performance
+    // RING 1 - Static solid ring
     // ========================================
     const ring1 = MeshBuilder.CreateTorus("ring1", {
-      diameter: 16, // Smaller (was 24)
+      diameter: 16,
       thickness: 0.12,
-      tessellation: 48 // Lower for performance
+      tessellation: 48
     }, scene);
     ring1.parent = coreGroup;
     ring1.position = Vector3.Zero();
@@ -301,7 +257,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     ring1.rotation.y = 0;
     ring1.rotation.z = 0;
 
-    // Simple emissive material
     const ring1Mat = new StandardMaterial("ring1Mat", scene);
     ring1Mat.emissiveColor = Color3.FromHexString("#00ff00");
     ring1Mat.diffuseColor = Color3.Black();
@@ -310,12 +265,12 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     ring1.material = ring1Mat;
 
     // ========================================
-    // RING 2 BASE - Static visible ring (always visible)
+    // RING 2
     // ========================================
     const ring2Base = MeshBuilder.CreateTorus("ring2Base", {
-      diameter: 16, // Same size as ring1
-      thickness: 0.4, // Thicker for gaseous appearance
-      tessellation: 48 // Lower for performance
+      diameter: 16,
+      thickness: 1,
+      tessellation: 48
     }, scene);
     ring2Base.parent = coreGroup;
     ring2Base.position = Vector3.Zero();
@@ -328,7 +283,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     ring2BaseMat.emissiveColor = Color3.FromHexString("#00aa00"); // Darker green
     ring2BaseMat.diffuseColor = Color3.FromHexString("#002200");
     ring2BaseMat.specularColor = Color3.Black();
-    ring2BaseMat.alpha = 0.4; // Semi-transparent
+    ring2BaseMat.alpha = 0.3;
     ring2Base.material = ring2BaseMat;
 
 
@@ -336,22 +291,20 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   }
 
   private spawnCVConstellations() {
-    const radius = 14; // Distance from center
+    const radius = 14;
     const sections = CV_DATA;
     const total = sections.length;
 
     sections.forEach((section: any, index: number) => {
-      // Calculate position in a circle (Solar System layout)
       const angle = (index / total) * Math.PI * 2;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
 
-      // Add slight Y variation for "floating" feel, but keep them accessible
       const y = Math.sin(angle * 3) * 1.5;
 
       const pos = new Vector3(x, y, z);
 
-      const color = "#00FF00"; // Default Orange/Red
+      const color = "#00FF00";
       const node = this.babylonService.createOrbitalNode(section.title, pos, color, () => {
         this.onNodeClicked(section, node);
       });
@@ -362,8 +315,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     if (this.isDetailsOpen()) return;
 
     this.ngZone.run(() => {
-      // Find the specific child mesh that is the "Planet" to look at
-      // or just target the group position
       this.babylonService.flyToMesh(mesh, 7, () => {
         this.ngZone.run(() => {
           this.activeSection.set(section);
@@ -374,13 +325,12 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   }
 
   public closeDetails() {
-    this.isDetailsOpen.set(false);
 
-    // Wait for UI to fade out before zooming back
+    this.isDetailsOpen.set(false);
     setTimeout(() => {
       this.activeSection.set(null);
       this.babylonService.resetCameraView();
-    }, 300);
+    }, 100);
   }
 
   ngOnDestroy() {

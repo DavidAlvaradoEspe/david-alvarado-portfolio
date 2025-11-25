@@ -29,8 +29,7 @@ export class StarfieldShaderService {
     this.scene = scene;
 
     try {
-      // Register the shader
-      console.log('Registering starfield shaders...');
+
       Effect.ShadersStore['starfieldFragmentShader'] = STARFIELD_FRAGMENT_SHADER;
       Effect.ShadersStore['starfieldVertexShader'] = `
         precision highp float;
@@ -51,7 +50,6 @@ export class StarfieldShaderService {
         }
       `;
 
-      console.log('Creating starfield sphere mesh...');
       // Create a large sphere that will serve as the background
       this.starfieldMesh = MeshBuilder.CreateSphere(
         'starfieldBackground',
@@ -67,7 +65,6 @@ export class StarfieldShaderService {
       this.starfieldMesh.renderingGroupId = 0;
       this.starfieldMesh.isPickable = false;
 
-      console.log('Creating shader material...');
       // Create shader material
       this.starfieldMaterial = new ShaderMaterial(
         'starfieldMaterial',
@@ -84,7 +81,6 @@ export class StarfieldShaderService {
 
       // Set initial uniforms
       const resolution = this.getResolution(scene);
-      console.log('Setting resolution:', resolution);
       this.starfieldMaterial.setVector2('iResolution', resolution);
       this.starfieldMaterial.setFloat('iTime', this.time);
 
@@ -94,7 +90,6 @@ export class StarfieldShaderService {
       // Apply material to mesh
       this.starfieldMesh.material = this.starfieldMaterial;
 
-      console.log('Setting up render loop observer...');
       // Update shader uniforms every frame
       scene.onBeforeRenderObservable.add(() => {
         if (this.starfieldMaterial && this.scene) {
@@ -105,7 +100,6 @@ export class StarfieldShaderService {
         }
       });
 
-      console.log('✅ Starfield shader initialized successfully');
       return this.starfieldMesh;
     } catch (error) {
       console.error('Failed to initialize starfield shader:', error);

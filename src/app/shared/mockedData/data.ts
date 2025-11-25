@@ -3,7 +3,7 @@ export interface CVSection {
   title: string;
   type: 'about' | 'experience' | 'skills' | 'education';
   position: [number, number, number]; // X, Y, Z coordinates in 3D space
-  content: any; // Flexible content structure
+  content: any;
 }
 
 export const CV_DATA: CVSection[] = [

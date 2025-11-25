@@ -709,8 +709,6 @@ export class BabylonSceneService implements OnDestroy {
   }
 
 
-
-  // --- NEW: ORBITAL NODES (THE CV SECTIONS) ---
   public createOrbitalNode(
     name: string,
     position: Vector3,
@@ -722,7 +720,6 @@ export class BabylonSceneService implements OnDestroy {
     const nodeGroup = new Mesh(name + "_group", this.scene);
     nodeGroup.position = position;
 
-    // 1. The Planet (Sphere)
     const planet = MeshBuilder.CreateSphere(name, { diameter: 2, segments: 16 }, this.scene);
     planet.parent = nodeGroup;
     const mat = new StandardMaterial(name + "_mat", this.scene);
@@ -730,7 +727,6 @@ export class BabylonSceneService implements OnDestroy {
     mat.alpha = 0.8;
     planet.material = mat;
 
-    // 2. Atmosphere (Inner Glow)
     const atmo = MeshBuilder.CreateSphere(name + "_atmo", { diameter: 1.5, segments: 16 }, this.scene);
     atmo.parent = nodeGroup;
     const atmoMat = new StandardMaterial(name + "_atmoMat", this.scene);
@@ -748,22 +744,15 @@ export class BabylonSceneService implements OnDestroy {
       })
     );
 
-    // Setup hover effect with orange glow
     this.setupConstellationHoverEffect(planet, atmo, colorHex);
 
-    // 4. Floating Label
     this.createHolographicLabel(name, nodeGroup, colorHex);
 
-    // 5. Connection Beam (Laser to Center)
     this.createConnectionBeam(Vector3.Zero(), position, colorHex);
-
-    // NO ROTATION - Orbital planets should be static
-    // Only the central planet rotates
 
     return nodeGroup;
   }
 
-  // --- HOVER EFFECT FOR CV CONSTELLATIONS ---
   /**
    * Optimized hover effect that changes glow color to orange on mouse over
    * @param planet - The main planet mesh (pickable sphere)
@@ -787,20 +776,15 @@ export class BabylonSceneService implements OnDestroy {
     const planetMat = planet.material as StandardMaterial;
     const atmoMat = atmosphere.material as StandardMaterial;
 
-    // Mouse ENTER - Change to orange glow
     planet.actionManager.registerAction(
       new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
         if (!this.isTransitioning) {
-          // Change planet to bright orange
           planetMat.emissiveColor = brightHoverColor;
-
-          // Change atmosphere to orange glow
           atmoMat.emissiveColor = hoverColor;
         }
       })
     );
 
-    // Mouse LEAVE - Restore original color
     planet.actionManager.registerAction(
       new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
         // Restore original colors
@@ -810,7 +794,6 @@ export class BabylonSceneService implements OnDestroy {
     );
   }
 
-  // --- NEW: LASER BEAMS ---
   private createConnectionBeam(start: Vector3, end: Vector3, _colorHex: string) {
     // Create the line mesh
     const points = [start, end];
@@ -820,34 +803,28 @@ export class BabylonSceneService implements OnDestroy {
     line.isPickable = false;
   }
 
-  // --- NEW: 3D TEXT LABELS ---
   private createHolographicLabel(text: string, parent: AbstractMesh, _colorHex: string) {
     const planeWidth = 12;
     const planeHeight = 3;
     const plane = MeshBuilder.CreatePlane("label", { width: planeWidth, height: planeHeight }, this.scene);
     plane.parent = parent;
 
-    // Position slightly below
     plane.position.y = -2.8;
-    plane.billboardMode = Mesh.BILLBOARDMODE_ALL; // Always face camera
+    plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
     plane.isPickable = false;
 
-    // Create VERY HIGH RESOLUTION dynamic texture for maximum sharpness
     const dt = new DynamicTexture("dynamic texture", { width: 2048, height: 512 }, this.scene!);
     dt.hasAlpha = true;
 
     const ctx = dt.getContext();
 
-    // Clear with transparency
     ctx.clearRect(0, 0, 2048, 512);
 
-    // Bright, high-contrast colors for maximum legibility
     const mainColor = "#ffffff"; // Pure white for core text
     const blueGlow = "#4da6ff"; // Bright blue glow
     const darkOutline = "#000000"; // Pure black outline for maximum contrast
 
-    // Clean, modern font - larger size
-    const fontSize = 140; // Much larger for better readability
+    const fontSize = 140;
     ctx.font = `700 ${fontSize}px "Segoe UI", "Century Gothic", "Futura", "Trebuchet MS", sans-serif`;
 
     // Center the text
@@ -855,7 +832,6 @@ export class BabylonSceneService implements OnDestroy {
     const x = (2048 - textMetrics.width) / 2;
     const y = 280;
 
-    // LAYER 1: Soft blue outer glow
     ctx.shadowColor = blueGlow;
     ctx.shadowBlur = 30;
     ctx.shadowOffsetX = 0;
@@ -863,29 +839,24 @@ export class BabylonSceneService implements OnDestroy {
     ctx.fillStyle = blueGlow;
     ctx.fillText(text.toUpperCase(), x, y);
 
-    // LAYER 2: Medium blue glow
     ctx.shadowBlur = 18;
     ctx.fillText(text.toUpperCase(), x, y);
 
-    // LAYER 3: Strong black outline for definition
     ctx.shadowBlur = 0;
     ctx.lineWidth = 8; // Thick outline for crisp edges
     ctx.strokeStyle = darkOutline;
     ctx.strokeText(text.toUpperCase(), x, y);
 
-    // LAYER 4: Inner blue glow
     ctx.shadowBlur = 12;
     ctx.shadowColor = blueGlow;
     ctx.fillStyle = blueGlow;
     ctx.fillText(text.toUpperCase(), x, y);
 
-    // LAYER 5: Bright white core (most important for legibility)
     ctx.shadowBlur = 6;
     ctx.shadowColor = "#ffffff";
     ctx.fillStyle = mainColor; // Pure white
     ctx.fillText(text.toUpperCase(), x, y);
 
-    // LAYER 6: Extra bright center highlight
     ctx.shadowBlur = 0;
     ctx.fillStyle = "#ffffff";
     ctx.fillText(text.toUpperCase(), x, y);
@@ -903,7 +874,6 @@ export class BabylonSceneService implements OnDestroy {
 
     plane.material = mat;
 
-    // Exclude from glow layer
     if (this.glowLayer) {
       this.glowLayer.addExcludedMesh(plane);
     }
@@ -914,10 +884,9 @@ export class BabylonSceneService implements OnDestroy {
     if (!this.scene || !this.camera || this.isTransitioning) return;
 
     this.isTransitioning = true;
-    const frameRate = 60;
-    const duration = 120;
+    const frameRate = 30;
+    const duration = 60;
 
-    // Use absolute position clone to ensure we target the world space coord
     const targetPos = targetMesh.absolutePosition.clone();
 
     const animRadius = new Animation("zoom", "radius", frameRate, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZone } from '@angular/core';
+import {Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZone, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 // Loaders
@@ -73,7 +73,7 @@ const ANIMATION_CONFIG = {
 export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('renderCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  public puzzleStep = 0;
+  public puzzleStep = signal<number>(0);
   public readonly SEQUENCE_DISPLAY = PUZZLE_CONFIG.SEQUENCE_DISPLAY;
 
   private isAnimating = false;
@@ -100,7 +100,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     public readonly puzzleStore: PuzzleStore
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.splashService.show = true;
     this.puzzleStore.setLoading(true);
   }
@@ -108,16 +108,16 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
-        this.initBabylonScene().catch(console.error);
+        this.initBabylonScene().catch(console.error)
       }, 0);
     });
   }
 
-  private async initBabylonScene(): Promise<void> {
+  private async initBabylonScene() {
     this.initializeScene();
 
     try {
-      this.splashService.updateMessage("Loading Treasure Map");
+      this.splashService.updateMessage("LOADING MAP");
 
       await this.loadInnerSphere();
       await this.loadOuterMapModel();
@@ -131,7 +131,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private initializeScene(): void {
+  private initializeScene() {
     const canvas = this.canvasRef.nativeElement;
 
     this.babylonService.initScene(canvas, {
@@ -146,7 +146,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private async loadInnerSphere(): Promise<void> {
+  private async loadInnerSphere() {
     this.loadedInnerMap = await this.babylonService.loadModel('assets/models/inner_sphere.glb');
     this.loadedInnerMap.addAllToScene();
     this.mapSphere = this.loadedInnerMap.meshes[1];
@@ -170,8 +170,8 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     this.babylonService.scaleMesh(this.loadedInnerMap.meshes[0], 1.03);
   }
 
-  private async loadOuterMapModel(): Promise<void> {
-    // Removed progress callback since we are simplifying the splash screen
+  private async loadOuterMapModel(){
+
     this.loadedOuterMap = await this.babylonService.loadModel('assets/models/treasure_map.glb');
 
     this.loadedOuterMap.addAllToScene();
@@ -188,23 +188,22 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setupModel();
   }
 
-  private finalizeSceneSetup(): void {
+  private finalizeSceneSetup() {
     this.ngZone.run(() => {
       this.puzzleStore.setLoading(false);
-      // Small delay to let user see "Loaded" state if you wanted, or just hide immediately
       setTimeout(() => {
         this.splashService.hide();
-      }, 500);
+      }, 300);
     });
     this.babylonService.startAnimation();
   }
 
-  private setupModel(): void {
+  private setupModel() {
     if (!this.babylonService.currentScene || !this.artifactNode) return;
     this.startFloatingEffect();
   }
 
-  private startFloatingEffect(): void {
+  private startFloatingEffect() {
     if (!this.babylonService.currentScene || !this.artifactNode) return;
 
     const scene = this.babylonService.currentScene;
@@ -221,12 +220,12 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private setupInteraction(): void {
+  private setupInteraction() {
     if (!this.babylonService.currentScene) return;
     this.attachPointerObserver();
   }
 
-  private attachPointerObserver(): void {
+  private attachPointerObserver() {
     if (!this.babylonService.currentScene || this.pointerObserver) return;
 
     this.pointerObserver = this.babylonService.currentScene.onPointerObservable.add((pointerInfo) => {
@@ -249,7 +248,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private detachPointerObserver(): void {
+  private detachPointerObserver() {
     if (this.pointerObserver && this.babylonService.currentScene) {
       this.babylonService.currentScene.onPointerObservable.remove(this.pointerObserver);
       this.pointerObserver = null;
@@ -266,26 +265,26 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     return dy > 0 ? 'down' : 'up';
   }
 
-  private handleSwipe(direction: SwipeDirection): void {
+  private handleSwipe(direction: SwipeDirection) {
     if (this.isAnimating || this.puzzleStore.isUnlocked()) return;
 
     this.isAnimating = true;
     this.detachPointerObserver();
 
     this.ngZone.run(() => {
-      const expectedDirection = this.SEQUENCE[this.puzzleStep];
+      const expectedDirection = this.SEQUENCE[this.puzzleStep()];
       if (direction === expectedDirection) {
-        this.puzzleStep++;
+        this.puzzleStep.set(this.puzzleStep()+1);
         this.onCorrectSwipe();
-        if (this.puzzleStep >= this.SEQUENCE.length) this.unlockPuzzle().catch(console.error);
+        if (this.puzzleStep() >= this.SEQUENCE.length) this.unlockPuzzle().catch(console.error);
       } else {
-        this.puzzleStep = 0;
+        this.puzzleStep.set(0);
         this.onWrongSwipe();
       }
     });
   }
 
-  private onCorrectSwipe(): void {
+  private onCorrectSwipe() {
     if ('vibrate' in navigator && !this.isVibrating) {
       this.isVibrating = true;
       navigator.vibrate(100);
@@ -310,7 +309,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     const animatable = scene.beginDirectAnimation(mat, [pulseAnim], 0, ANIMATION_CONFIG.PULSE_DURATION, false);
 
     setTimeout(() => {
-      const direction = this.SEQUENCE[this.puzzleStep - 1];
+      const direction = this.SEQUENCE[this.puzzleStep() - 1];
       this.babylonService.rotateCameraByDirection(direction);
     }, ANIMATION_CONFIG.CAMERA_DELAY);
 
@@ -321,7 +320,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private onWrongSwipe(): void {
+  private onWrongSwipe() {
     if ('vibrate' in navigator && !this.isVibrating) {
       this.isVibrating = true;
       navigator.vibrate([50, 100, 50]);
@@ -359,7 +358,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private resetAfterAnimation(): void {
+  private resetAfterAnimation() {
     this.isAnimating = false;
     this.isVibrating = false;
     if (!this.puzzleStore.isUnlocked()) this.attachPointerObserver();
@@ -409,7 +408,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private cleanupResources(): void {
+  private cleanupResources() {
     // Dispose all mesh and asset containers
     if (this.artifactNode) {
       this.artifactNode.dispose();
@@ -445,7 +444,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     this.detachPointerObserver();
   }
 
-  private transitionToGridRoom(): void {
+  private transitionToGridRoom() {
     this.ngZone.run(() => {
       this.router.navigate(['/holographic-room']).catch(console.error);
     });

@@ -5,18 +5,14 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class SplashScreenService {
-  // Visibility State
   private _show$ = new BehaviorSubject<boolean>(false);
   public readonly show$ = this._show$.asObservable();
 
-  // Message State
   private _message$ = new BehaviorSubject<string>('Loading...');
   public readonly message$ = this._message$.asObservable();
 
-  // Theme/Config State
   public isTransparent = false;
 
-  // -- Getters/Setters --
   get show(): boolean {
     return this._show$.value;
   }
@@ -26,7 +22,6 @@ export class SplashScreenService {
     else this.toggleScroll(false);
   }
 
-  // -- Public Methods --
 
   public updateMessage(msg: string): void {
     this._message$.next(msg);

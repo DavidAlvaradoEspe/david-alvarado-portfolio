@@ -1,13 +1,11 @@
 <div class="holographic-container">
   <canvas #renderCanvas class="render-canvas"></canvas>
   @if(!puzzleStore.isLoading()){
-    <!-- Persistent HUD -->
     <div class="hud-overlay">
       <div class="status-bar">SYSTEM: ONLINE</div>
       <div class="status-bar right">VISUAL: OPTIMIZED</div>
     </div>
 
-    <!-- Content Panel (Only shows when a star is clicked) -->
     <div class="holo-panel" [class.active]="isDetailsOpen()">
 
       @if (activeSection(); as section) {
@@ -18,18 +16,17 @@
 
         <div class="panel-content custom-scrollbar">
 
-          <!-- ABOUT TEMPLATE -->
           @if (section.type === 'about') {
             <p class="summary-text">{{ section.content.summary }}</p>
             <div class="info-grid">
               <div class="info-item">
-                <label>ROLE</label> <span>{{ section.content.role }}</span>
+                <label>Role: </label> <span>{{ section.content.role }}</span>
               </div>
               <div class="info-item">
-                <label>LOC</label> <span>{{ section.content.location }}</span>
+                <label>Location: </label> <span>{{ section.content.location }}</span>
               </div>
               <div class="info-item">
-                <label>MAIL</label> <a [href]="'mailto:' + section.content.contact">{{ section.content.contact }}</a>
+                <label>Email: </label> <a [href]="'mailto:' + section.content.contact">{{ section.content.contact }}</a>
               </div>
             </div>
           }
