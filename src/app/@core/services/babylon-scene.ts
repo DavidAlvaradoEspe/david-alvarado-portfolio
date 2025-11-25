@@ -13,20 +13,11 @@ import { BoundingInfo } from '@babylonjs/core/Culling/boundingInfo';
 import { EnvironmentHelper } from '@babylonjs/core/Helpers/environmentHelper';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { Nullable } from '@babylonjs/core/types';
 import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
-import { Animation } from '@babylonjs/core/Animations/animation';
-import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
-import { Texture } from '@babylonjs/core/Materials/Textures/texture';
 import { GlowLayer } from '@babylonjs/core/Layers/glowLayer';
 import {removeDuplicateInspectorStyles} from '../utils';
-import { GPUParticleSystem } from '@babylonjs/core/Particles/gpuParticleSystem';
-import {SphereParticleEmitter} from '@babylonjs/core';
-import { ActionManager } from '@babylonjs/core/Actions/actionManager';
-import { ExecuteCodeAction } from '@babylonjs/core/Actions/directActions';
-import { CubicEase, EasingFunction } from '@babylonjs/core/Animations/easing';
-import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture';
+
 
 // Side-effects required for Animation and Environment
 import '@babylonjs/core/Animations/animatable';
@@ -48,14 +39,7 @@ const CAMERA_CONFIG = {
   RADIUS_UPPER_LIMIT_RATIO: 2.0,
 } as const;
 
-const ANIMATION_CONFIG = {
-  ROTATION_FPS: 60,
-  ROTATION_FRAMES: 30,
-  RESET_FRAMES: 30,
-  SHAKE_DURATION: 250,
-  SHAKE_FREQUENCY: 50,
-  SHAKE_INTENSITY: 0.005,
-} as const;
+
 
 const LIGHT_CONFIG = {
   POINT_LIGHT_INTENSITY: 0.2,
@@ -86,7 +70,6 @@ export class BabylonSceneService implements OnDestroy {
   private canvas: HTMLCanvasElement | null = null;
   private framingBehavior: FramingBehavior | null = null;
   private envTexture = "assets/textures/environmentSpecular.env";
-  private isTransitioning = false;
   private glowLayer: GlowLayer | null = null;
   // Meshes and Helpers
   public parentBox: Mesh | null = null;
@@ -98,9 +81,9 @@ export class BabylonSceneService implements OnDestroy {
   private hemisphericLightRight: HemisphericLight | null = null;
 
   // Camera State
-  private cameraInitialAlpha: number | null = null;
-  private cameraInitialBeta: number | null = null;
-  private cameraInitialRadius: number | null = null;
+  public cameraInitialAlpha: number | null = null;
+  public cameraInitialBeta: number | null = null;
+  public cameraInitialRadius: number | null = null;
 
   // Debug
   private keydownListener!: (event: KeyboardEvent) => void;
@@ -131,6 +114,7 @@ export class BabylonSceneService implements OnDestroy {
 
     this.ngZone.runOutsideAngular(() => {
       this.engine = new Engine(canvas, true, {
+        adaptToDeviceRatio: true,
         preserveDrawingBuffer: true,
         stencil: true,
         disableWebGL2Support: false
@@ -441,89 +425,6 @@ export class BabylonSceneService implements OnDestroy {
   public get currentScene(): Scene | null { return this.scene; }
   public get currentCamera(): ArcRotateCamera | null { return this.camera; }
 
-  public rotateCameraByDirection(direction: 'left' | 'right' | 'up' | 'down') {
-    if (!this.camera || !this.scene) return;
-    const angle90 = Math.PI / 2;
-    const { property, currentValue, targetValue } = this.calculateRotationTarget(direction, angle90, this.camera.alpha, this.camera.beta);
-    this.animateCameraProperty(property, currentValue, targetValue);
-  }
-
-  private calculateRotationTarget(direction: string, angle90: number, currentAlpha: number, currentBeta: number) {
-    switch (direction) {
-      case 'right': return { property: 'alpha' as const, currentValue: currentAlpha, targetValue: currentAlpha - angle90 };
-      case 'left': return { property: 'alpha' as const, currentValue: currentAlpha, targetValue: currentAlpha + angle90 };
-      case 'up': return { property: 'beta' as const, currentValue: currentBeta, targetValue: Math.max(0.1, currentBeta + angle90) };
-      case 'down': return { property: 'beta' as const, currentValue: currentBeta, targetValue: Math.min(Math.PI - 0.1, currentBeta - angle90) };
-      default: return { property: 'alpha' as const, currentValue: 0, targetValue: 0 };
-    }
-  }
-
-  private animateCameraProperty(property: 'alpha' | 'beta', from: number, to: number) {
-    if (!this.camera) return;
-    Animation.CreateAndStartAnimation(`cameraRotation_${property}`, this.camera, property, ANIMATION_CONFIG.ROTATION_FPS, ANIMATION_CONFIG.ROTATION_FRAMES, from, to, Animation.ANIMATIONLOOPMODE_CONSTANT);
-  }
-
-  public shakeParentBox() {
-    if (!this.parentBox || !this.scene) return;
-    const originalPosition = this.parentBox.position.clone();
-    const startTime = Date.now();
-
-    const shakeObserver = this.scene.onBeforeRenderObservable.add(() => {
-      const elapsed = Date.now() - startTime;
-      if (elapsed >= ANIMATION_CONFIG.SHAKE_DURATION) {
-        this.resetShake(shakeObserver, originalPosition);
-      } else {
-        this.applyShakeOffset(elapsed, originalPosition);
-      }
-    });
-  }
-
-  private resetShake(observer: any, originalPosition: Vector3) {
-    if (!this.parentBox || !this.scene) return;
-    this.parentBox.position.copyFrom(originalPosition);
-    this.scene.onBeforeRenderObservable.remove(observer);
-  }
-
-  private applyShakeOffset(elapsed: number, originalPosition: Vector3) {
-    if (!this.parentBox) return;
-    const progress = elapsed / ANIMATION_CONFIG.SHAKE_DURATION;
-    const amplitude = ANIMATION_CONFIG.SHAKE_INTENSITY * (1 - progress);
-    const time = elapsed / 1000;
-    const frequency = ANIMATION_CONFIG.SHAKE_FREQUENCY * Math.PI * 2;
-
-    this.parentBox.position.x = originalPosition.x + Math.sin(time * frequency) * amplitude;
-    this.parentBox.position.y = originalPosition.y + Math.cos(time * frequency) * amplitude * 0.7;
-    this.parentBox.position.z = originalPosition.z + Math.sin(time * frequency + Math.PI / 3) * amplitude * 0.5;
-  }
-
-  public resetCameraToInitialPosition() {
-    if (!this.camera || !this.hasInitialCameraPosition()) return;
-    this.animateCameraReset('alpha', this.cameraInitialAlpha!);
-    this.animateCameraReset('beta', this.cameraInitialBeta!);
-    this.animateCameraReset('radius', this.cameraInitialRadius!);
-  }
-
-  private hasInitialCameraPosition(): boolean {
-    return this.cameraInitialAlpha !== null && this.cameraInitialBeta !== null && this.cameraInitialRadius !== null;
-  }
-
-  private animateCameraReset(property: string, targetValue: number) {
-    if (!this.camera) return;
-    const currentValue = (this.camera as any)[property];
-    Animation.CreateAndStartAnimation(`resetCamera_${property}`, this.camera, property, ANIMATION_CONFIG.ROTATION_FPS, ANIMATION_CONFIG.RESET_FRAMES, currentValue, targetValue, Animation.ANIMATIONLOOPMODE_CONSTANT);
-  }
-
-
-
-  public dispose() {
-    this.stopAnimation();
-    if (this.keydownListener) window.removeEventListener('keydown', this.keydownListener);
-    this.scene?.dispose();
-    this.engine?.dispose();
-    this.scene = null;
-    this.engine = null;
-    this.camera = null;
-  }
 
   private showDebugLayer() {
     this.keydownListener = (event: KeyboardEvent) => {
@@ -540,7 +441,6 @@ export class BabylonSceneService implements OnDestroy {
 
   private async toggleDebugLayer(): Promise<void> {
     if (!this.scene) return;
-
     if (this.scene.debugLayer?.isVisible()) {
       this.scene.debugLayer.hide();
       return;
@@ -569,365 +469,16 @@ export class BabylonSceneService implements OnDestroy {
     removeDuplicateInspectorStyles("https://use.typekit.net/cta4xsb.css");
   }
 
-  /**
-   * Creates a "God of War" style release of energy orbs.
-   * @param emitterMesh The mesh where orbs originate (the inner sphere)
-   * @param onNavigate
-   * @param color The color of the energy (Green for GoW health/solution)
-   */
-  public createOrbExplosion(emitterMesh: AbstractMesh, onNavigate: () => void, color: Color3 = Color3.FromHexString('#020205')): Promise<void> {
-    if (!this.scene) return Promise.resolve();
 
-    return new Promise((resolve) => {
-      if (!this.scene) return resolve();
-
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-      // ==================== PARTICLE SYSTEM ====================
-      const particleCount = isMobile ? 1500 : 3000;
-      let particleSystem: GPUParticleSystem | ParticleSystem;
-
-      if (GPUParticleSystem.IsSupported) {
-        particleSystem = new GPUParticleSystem("explosionParticles", { capacity: particleCount }, this.scene);
-        particleSystem.activeParticleCount = particleCount;
-      } else {
-        particleSystem = new ParticleSystem("explosionParticles", isMobile ? 300 : 600, this.scene);
-      }
-
-      // Orb texture
-      particleSystem.particleTexture = new Texture("https://www.babylonjs.com/assets/Flare.png", this.scene);
-      particleSystem.emitter = emitterMesh;
-
-      // Sphere emitter - explosion in all directions from center
-      const sphereEmitter = new SphereParticleEmitter();
-      sphereEmitter.radius = 0.1;
-      sphereEmitter.radiusRange = 0;
-      particleSystem.particleEmitterType = sphereEmitter;
-
-      // Green orb colors - vibrant and glowing
-      const orbColor = Color3.FromHexString('#00ff00'); // Bright green
-      particleSystem.color1 = new Color4(orbColor.r * 3, orbColor.g * 3, orbColor.b * 3, 1);
-      particleSystem.color2 = new Color4(orbColor.r * 2, orbColor.g * 2, orbColor.b * 2, 1);
-      particleSystem.colorDead = new Color4(orbColor.r * 0.5, orbColor.g * 0.5, orbColor.b * 0.5, 0);
-
-      // Small orbs
-      particleSystem.minSize = 0.01;
-      particleSystem.maxSize = 0.06;
-
-      // Particle lifetime
-      particleSystem.minLifeTime = 0.8;
-      particleSystem.maxLifeTime = 1.2;
-      particleSystem.emitRate = isMobile ? 4000 : 8000;
-      particleSystem.blendMode = ParticleSystem.BLENDMODE_ADD;
-      particleSystem.gravity = new Vector3(0, 0, 0);
-
-      // Explosion outward
-      particleSystem.minEmitPower = 6;
-      particleSystem.maxEmitPower = 12;
-      particleSystem.updateSpeed = 0.016;
-
-      // Start emitting immediately
-      particleSystem.start();
-
-      // ==================== FLASH OVERLAY ====================
-      const flashPlane = MeshBuilder.CreatePlane("transitionFlash", { size: 500 }, this.scene);
-      const camera = this.scene.activeCamera;
-
-      if (camera) {
-        flashPlane.parent = camera;
-        flashPlane.position = new Vector3(0, 0, 5);
-        flashPlane.renderingGroupId = 3;
-      }
-
-      const flashMaterial = new StandardMaterial("transitionFlashMaterial", this.scene);
-      flashMaterial.emissiveColor = color; // Cyan flash
-      flashMaterial.disableLighting = true;
-      flashMaterial.backFaceCulling = false;
-      flashMaterial.alpha = 0;
-      flashPlane.material = flashMaterial;
-      flashPlane.isVisible = true;
-
-      // ==================== SMOOTH ANIMATION ====================
-      let elapsed = 0;
-      const totalDuration = 2200;
-      const particleStopTime = 700;
-      const flashStartTime = 1200;
-      const flashPeakTime = 1500;
-      const navigationTime = 1600;
-      const flashEndTime = 2200;
-      let hasNavigated = false;
-
-      const observer = this.scene.onBeforeRenderObservable.add(() => {
-        elapsed += this.scene!.getEngine().getDeltaTime();
-
-        // Stop emitting particles after brief burst (they'll continue flying for 3 seconds)
-        if (elapsed >= particleStopTime) {
-          particleSystem.emitRate = 0;
-        }
-
-        // Trigger navigation during flash (while screen is covered)
-        if (elapsed >= navigationTime && !hasNavigated) {
-          hasNavigated = true;
-          onNavigate();
-        }
-
-        // Smooth continuous flash animation
-        if (elapsed < flashStartTime) {
-          // Before flash starts - 3 seconds of particle display
-          flashMaterial.alpha = 0;
-        } else if (elapsed < flashPeakTime) {
-          // Fade in: 3000ms to 3300ms (300ms duration)
-          const fadeInProgress = (elapsed - flashStartTime) / (flashPeakTime - flashStartTime);
-          flashMaterial.alpha = fadeInProgress * fadeInProgress;
-        } else if (elapsed < flashEndTime) {
-          // Fade out: 3300ms to 4000ms (700ms duration)
-          const fadeOutProgress = (elapsed - flashPeakTime) / (flashEndTime - flashPeakTime);
-          // Smooth cubic ease-out to cover navigation
-          flashMaterial.alpha = 1.0 - (fadeOutProgress * fadeOutProgress * fadeOutProgress);
-        } else {
-          // After flash ends
-          flashMaterial.alpha = 0;
-        }
-
-        // Complete animation
-        if (elapsed >= totalDuration) {
-          if (observer) {
-            this.scene?.onBeforeRenderObservable.remove(observer);
-          }
-
-          // Cleanup
-          flashPlane.dispose();
-          flashMaterial.dispose();
-
-          resolve();
-
-          // Dispose particles after they fade
-          setTimeout(() => particleSystem.dispose(), 500);
-        }
-      });
-    });
+  public dispose() {
+    this.stopAnimation();
+    if (this.keydownListener) window.removeEventListener('keydown', this.keydownListener);
+    this.scene?.dispose();
+    this.engine?.dispose();
+    this.scene = null;
+    this.engine = null;
+    this.camera = null;
   }
-
-
-  public createOrbitalNode(
-    name: string,
-    position: Vector3,
-    colorHex: string,
-    onClick: () => void
-  ): AbstractMesh {
-    if (!this.scene) throw new Error("Scene not initialized");
-
-    const nodeGroup = new Mesh(name + "_group", this.scene);
-    nodeGroup.position = position;
-
-    const planet = MeshBuilder.CreateSphere(name, { diameter: 2, segments: 16 }, this.scene);
-    planet.parent = nodeGroup;
-    const mat = new StandardMaterial(name + "_mat", this.scene);
-    mat.emissiveColor = Color3.FromHexString(colorHex);
-    mat.alpha = 0.8;
-    planet.material = mat;
-
-    const atmo = MeshBuilder.CreateSphere(name + "_atmo", { diameter: 1.5, segments: 16 }, this.scene);
-    atmo.parent = nodeGroup;
-    const atmoMat = new StandardMaterial(name + "_atmoMat", this.scene);
-    atmoMat.emissiveColor = Color3.FromHexString(colorHex);
-    atmoMat.alpha = 0.3;
-    atmo.material = atmoMat;
-
-    planet.isPickable = true;
-    nodeGroup.isPickable = false;
-
-    planet.actionManager = new ActionManager(this.scene);
-    planet.actionManager.registerAction(
-      new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
-        if (!this.isTransitioning) onClick();
-      })
-    );
-
-    this.setupConstellationHoverEffect(planet, atmo, colorHex);
-
-    this.createHolographicLabel(name, nodeGroup, colorHex);
-
-    this.createConnectionBeam(Vector3.Zero(), position, colorHex);
-
-    return nodeGroup;
-  }
-
-  /**
-   * Optimized hover effect that changes glow color to orange on mouse over
-   * @param planet - The main planet mesh (pickable sphere)
-   * @param atmosphere - The atmosphere glow mesh
-   * @param originalColorHex - Original color to restore on mouse out
-   */
-  private setupConstellationHoverEffect(
-    planet: Mesh,
-    atmosphere: Mesh,
-    originalColorHex: string
-  ) {
-    if (!planet.actionManager) {
-      planet.actionManager = new ActionManager(this.scene!);
-    }
-
-    const originalColor = Color3.FromHexString(originalColorHex);
-    const hoverColor = Color3.FromHexString("#FF8C00"); // Dark Orange for hover
-    const brightHoverColor = Color3.FromHexString("#FFA500"); // Bright Orange
-
-    // Store original materials
-    const planetMat = planet.material as StandardMaterial;
-    const atmoMat = atmosphere.material as StandardMaterial;
-
-    planet.actionManager.registerAction(
-      new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
-        if (!this.isTransitioning) {
-          planetMat.emissiveColor = brightHoverColor;
-          atmoMat.emissiveColor = hoverColor;
-        }
-      })
-    );
-
-    planet.actionManager.registerAction(
-      new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
-        // Restore original colors
-        planetMat.emissiveColor = originalColor;
-        atmoMat.emissiveColor = originalColor;
-      })
-    );
-  }
-
-  private createConnectionBeam(start: Vector3, end: Vector3, _colorHex: string) {
-    // Create the line mesh
-    const points = [start, end];
-    const line = MeshBuilder.CreateLines("beam", { points: points }, this.scene);
-    line.color = Color3.FromHexString("#00FF00"); // Green for all connection lines
-    line.alpha = 0.3;
-    line.isPickable = false;
-  }
-
-  private createHolographicLabel(text: string, parent: AbstractMesh, _colorHex: string) {
-    const planeWidth = 12;
-    const planeHeight = 3;
-    const plane = MeshBuilder.CreatePlane("label", { width: planeWidth, height: planeHeight }, this.scene);
-    plane.parent = parent;
-
-    plane.position.y = -2.8;
-    plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
-    plane.isPickable = false;
-
-    const dt = new DynamicTexture("dynamic texture", { width: 2048, height: 512 }, this.scene!);
-    dt.hasAlpha = true;
-
-    const ctx = dt.getContext();
-
-    ctx.clearRect(0, 0, 2048, 512);
-
-    const mainColor = "#ffffff"; // Pure white for core text
-    const blueGlow = "#4da6ff"; // Bright blue glow
-    const darkOutline = "#000000"; // Pure black outline for maximum contrast
-
-    const fontSize = 140;
-    ctx.font = `700 ${fontSize}px "Segoe UI", "Century Gothic", "Futura", "Trebuchet MS", sans-serif`;
-
-    // Center the text
-    const textMetrics = ctx.measureText(text.toUpperCase());
-    const x = (2048 - textMetrics.width) / 2;
-    const y = 280;
-
-    ctx.shadowColor = blueGlow;
-    ctx.shadowBlur = 30;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.fillStyle = blueGlow;
-    ctx.fillText(text.toUpperCase(), x, y);
-
-    ctx.shadowBlur = 18;
-    ctx.fillText(text.toUpperCase(), x, y);
-
-    ctx.shadowBlur = 0;
-    ctx.lineWidth = 8; // Thick outline for crisp edges
-    ctx.strokeStyle = darkOutline;
-    ctx.strokeText(text.toUpperCase(), x, y);
-
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = blueGlow;
-    ctx.fillStyle = blueGlow;
-    ctx.fillText(text.toUpperCase(), x, y);
-
-    ctx.shadowBlur = 6;
-    ctx.shadowColor = "#ffffff";
-    ctx.fillStyle = mainColor; // Pure white
-    ctx.fillText(text.toUpperCase(), x, y);
-
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(text.toUpperCase(), x, y);
-
-    dt.update();
-
-    const mat = new StandardMaterial("labelMat", this.scene!);
-    mat.diffuseTexture = dt;
-    mat.emissiveColor = Color3.FromHexString("#ffffff"); // White emission
-    mat.emissiveColor.scale(1.3); // Bright emission
-    mat.opacityTexture = dt;
-    mat.alpha = 1.0;
-    mat.disableLighting = true;
-    mat.backFaceCulling = false;
-
-    plane.material = mat;
-
-    if (this.glowLayer) {
-      this.glowLayer.addExcludedMesh(plane);
-    }
-  }
-
-  // --- UTILS ---
-  public flyToMesh(targetMesh: AbstractMesh, radius: number = 4, onComplete?: () => void) {
-    if (!this.scene || !this.camera || this.isTransitioning) return;
-
-    this.isTransitioning = true;
-    const frameRate = 30;
-    const duration = 60;
-
-    const targetPos = targetMesh.absolutePosition.clone();
-
-    const animRadius = new Animation("zoom", "radius", frameRate, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
-    const animTarget = new Animation("move", "target", frameRate, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
-
-    const easing = new CubicEase();
-    easing.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
-    [animRadius, animTarget].forEach(a => a.setEasingFunction(easing));
-
-    animRadius.setKeys([{ frame: 0, value: this.camera.radius }, { frame: duration, value: radius }]);
-    animTarget.setKeys([{ frame: 0, value: this.camera.target }, { frame: duration, value: targetPos }]);
-
-    this.scene.beginDirectAnimation(this.camera, [animRadius, animTarget], 0, duration, false, 1, () => {
-      this.isTransitioning = false;
-      if (onComplete) onComplete();
-    });
-  }
-
-  public resetCameraView(onComplete?: () => void) {
-    if (!this.scene || !this.camera) return;
-
-    this.isTransitioning = true;
-    const frameRate = 60;
-    const duration = 90;
-
-    const animRadius = new Animation("zoomOut", "radius", frameRate, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
-    const animTarget = new Animation("resetTarget", "target", frameRate, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
-
-    const easing = new CubicEase();
-    easing.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
-    [animRadius, animTarget].forEach(a => a.setEasingFunction(easing));
-
-    animRadius.setKeys([{ frame: 0, value: this.camera.radius }, { frame: duration, value: 40 }]); // Increased from 25 to 40 for better overview
-    animTarget.setKeys([{ frame: 0, value: this.camera.target }, { frame: duration, value: Vector3.Zero() }]);
-
-    this.scene.beginDirectAnimation(this.camera, [animRadius, animTarget], 0, duration, false, 1, () => {
-      this.isTransitioning = false;
-      if (onComplete) onComplete();
-    });
-  }
-
 
   public ngOnDestroy() {
     this.dispose();

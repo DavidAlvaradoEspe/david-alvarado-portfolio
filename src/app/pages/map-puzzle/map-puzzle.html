@@ -2,7 +2,7 @@
   <canvas #renderCanvas class="render-canvas"></canvas>
   @if(!puzzleStore.isUnlocked() && !puzzleStore.isLoading()){
     <div class="puzzle-hints">
-      <div class="hint-title">UNLOCK THE MAP</div>
+      <div class="hint-title">UNLOCK MAP</div>
       <div class="sequence-display">
         @for (arrow of SEQUENCE_DISPLAY; track arrow ; let i = $index) {
           <span

@@ -12,7 +12,6 @@
   // Background
   background: var(--bg-space);
   background: radial-gradient(circle at center, color-mix(in srgb, var(--bg-space), white 10%) 0%, var(--bg-space) 100%);
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,7 +32,6 @@
   position: relative;
 }
 
-/* --- 1. Icon Animation --- */
 .splash-icon-container {
   position: relative;
   margin: 0 auto 2.5rem;
@@ -75,10 +73,8 @@
   50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
 }
 
-/* --- 2. Title --- */
 .splash-title {
   color: var(--color-gold);
-  font-family: 'Segoe UI', sans-serif;
   font-size: 1.5rem;
   font-weight: 300;
   letter-spacing: 3px;
@@ -87,7 +83,6 @@
   text-shadow: 0 0 10px color-mix(in srgb, var(--color-gold), transparent 70%);
 }
 
-/* --- 3. Dots --- */
 .loading-dots {
   display: flex;
   justify-content: center;

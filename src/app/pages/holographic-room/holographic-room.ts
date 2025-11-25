@@ -12,6 +12,10 @@ import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial';
 import {Mesh} from '@babylonjs/core/Meshes/mesh';
 import {AbstractMesh} from '@babylonjs/core/Meshes/abstractMesh';
 import {Animation} from '@babylonjs/core/Animations/animation';
+import { ActionManager } from '@babylonjs/core/Actions/actionManager';
+import { ExecuteCodeAction } from '@babylonjs/core/Actions/directActions';
+import { CubicEase, EasingFunction } from '@babylonjs/core/Animations/easing';
+import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture';
 
 @Component({
   selector: 'app-holographic-room',
@@ -25,6 +29,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   // UI State Signals
   public activeSection = signal<CVSection | null>(null);
   public isDetailsOpen = signal<boolean>(false);
+  private isTransitioning = false;
 
   constructor(
     private babylonService: BabylonSceneService,
@@ -56,7 +61,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       // Initialize the Babylon scene
       this.babylonService.initScene(canvas, {
         createEnvironmentTexture: false,
-        createLights: true,
+        createLights: false,
         allowCamControls: true,
         createGlowLayer: true
       }, {
@@ -305,7 +310,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       const pos = new Vector3(x, y, z);
 
       const color = "#00FF00";
-      const node = this.babylonService.createOrbitalNode(section.title, pos, color, () => {
+      const node = this.createOrbitalNode(section.title, pos, color, () => {
         this.onNodeClicked(section, node);
       });
     });
@@ -315,7 +320,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     if (this.isDetailsOpen()) return;
 
     this.ngZone.run(() => {
-      this.babylonService.flyToMesh(mesh, 7, () => {
+      this.flyToMesh(mesh, 7, () => {
         this.ngZone.run(() => {
           this.activeSection.set(section);
           this.isDetailsOpen.set(true);
@@ -329,8 +334,236 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     this.isDetailsOpen.set(false);
     setTimeout(() => {
       this.activeSection.set(null);
-      this.babylonService.resetCameraView();
+      this.resetCameraView();
     }, 100);
+  }
+
+
+
+  public createOrbitalNode(
+    name: string,
+    position: Vector3,
+    colorHex: string,
+    onClick: () => void
+  ): AbstractMesh {
+    const scene = this.babylonService.currentScene;
+    if (!scene) throw new Error("Scene not initialized");
+
+    const nodeGroup = new Mesh(name + "_group", scene);
+    nodeGroup.position = position;
+
+    const planet = MeshBuilder.CreateSphere(name, { diameter: 2, segments: 16 }, scene);
+    planet.parent = nodeGroup;
+    const mat = new StandardMaterial(name + "_mat", scene);
+    mat.emissiveColor = Color3.FromHexString(colorHex);
+    mat.alpha = 0.8;
+    planet.material = mat;
+
+    const atmo = MeshBuilder.CreateSphere(name + "_atmo", { diameter: 1.5, segments: 16 }, scene);
+    atmo.parent = nodeGroup;
+    const atmoMat = new StandardMaterial(name + "_atmoMat", scene);
+    atmoMat.emissiveColor = Color3.FromHexString(colorHex);
+    atmoMat.alpha = 0.3;
+    atmo.material = atmoMat;
+
+    planet.isPickable = true;
+    nodeGroup.isPickable = false;
+
+    planet.actionManager = new ActionManager(scene);
+    planet.actionManager.registerAction(
+      new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
+        if (!this.isTransitioning) onClick();
+      })
+    );
+
+    this.setupConstellationHoverEffect(planet, atmo, colorHex);
+
+    this.createHolographicLabel(name, nodeGroup, colorHex);
+
+    this.createConnectionBeam(Vector3.Zero(), position, colorHex);
+
+    return nodeGroup;
+  }
+
+  /**
+   * Optimized hover effect that changes glow color to orange on mouse over
+   * @param planet - The main planet mesh (pickable sphere)
+   * @param atmosphere - The atmosphere glow mesh
+   * @param originalColorHex - Original color to restore on mouse out
+   */
+  private setupConstellationHoverEffect(
+    planet: Mesh,
+    atmosphere: Mesh,
+    originalColorHex: string
+  ) {
+
+    const scene = this.babylonService.currentScene;
+    if (!planet.actionManager) {
+      planet.actionManager = new ActionManager(scene!);
+    }
+
+    const originalColor = Color3.FromHexString(originalColorHex);
+    const hoverColor = Color3.FromHexString("#FF8C00");
+    const brightHoverColor = Color3.FromHexString("#FFA500");
+
+    // Store original materials
+    const planetMat = planet.material as StandardMaterial;
+    const atmoMat = atmosphere.material as StandardMaterial;
+
+    planet.actionManager.registerAction(
+      new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
+        if (!this.isTransitioning) {
+          planetMat.emissiveColor = brightHoverColor;
+          atmoMat.emissiveColor = hoverColor;
+        }
+      })
+    );
+
+    planet.actionManager.registerAction(
+      new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
+        // Restore original colors
+        planetMat.emissiveColor = originalColor;
+        atmoMat.emissiveColor = originalColor;
+      })
+    );
+  }
+
+  private createConnectionBeam(start: Vector3, end: Vector3, _colorHex: string) {
+    // Create the line mesh
+    const points = [start, end];
+    const line = MeshBuilder.CreateLines("beam", { points: points }, this.babylonService.currentScene);
+    line.color = Color3.FromHexString("#00FF00");
+    line.alpha = 0.3;
+    line.isPickable = false;
+  }
+
+  private createHolographicLabel(text: string, parent: AbstractMesh, _colorHex: string) {
+    const scene = this.babylonService.currentScene;
+    const planeWidth = 12;
+    const planeHeight = 3;
+    const plane = MeshBuilder.CreatePlane("label", { width: planeWidth, height: planeHeight }, scene);
+    plane.parent = parent;
+
+    plane.position.y = -2.8;
+    plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
+    plane.isPickable = false;
+
+    const dt = new DynamicTexture("dynamic texture", { width: 2048, height: 512 }, scene!);
+    dt.hasAlpha = true;
+
+    const ctx = dt.getContext();
+
+    ctx.clearRect(0, 0, 2048, 512);
+
+    const mainColor = "#ffffff"; // Pure white for core text
+    const blueGlow = "#4da6ff"; // Bright blue glow
+    const darkOutline = "#000000"; // Pure black outline for maximum contrast
+
+    const fontSize = 140;
+    ctx.font = `700 ${fontSize}px "Segoe UI", "Century Gothic", "Futura", "Trebuchet MS", sans-serif`;
+
+    // Center the text
+    const textMetrics = ctx.measureText(text.toUpperCase());
+    const x = (2048 - textMetrics.width) / 2;
+    const y = 280;
+
+    ctx.shadowColor = blueGlow;
+    ctx.shadowBlur = 30;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.fillStyle = blueGlow;
+    ctx.fillText(text.toUpperCase(), x, y);
+
+    ctx.shadowBlur = 18;
+    ctx.fillText(text.toUpperCase(), x, y);
+
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 8; // Thick outline for crisp edges
+    ctx.strokeStyle = darkOutline;
+    ctx.strokeText(text.toUpperCase(), x, y);
+
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = blueGlow;
+    ctx.fillStyle = blueGlow;
+    ctx.fillText(text.toUpperCase(), x, y);
+
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = "#ffffff";
+    ctx.fillStyle = mainColor; // Pure white
+    ctx.fillText(text.toUpperCase(), x, y);
+
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(text.toUpperCase(), x, y);
+
+    dt.update();
+
+    const mat = new StandardMaterial("labelMat", this.babylonService.currentScene!);
+    mat.diffuseTexture = dt;
+    mat.emissiveColor = Color3.FromHexString("#ffffff"); // White emission
+    mat.emissiveColor.scale(1.3); // Bright emission
+    mat.opacityTexture = dt;
+    mat.alpha = 1.0;
+    mat.disableLighting = true;
+    mat.backFaceCulling = false;
+
+    plane.material = mat;
+
+    if (this.babylonService.currentGlowLayer) {
+      this.babylonService.currentGlowLayer.addExcludedMesh(plane);
+    }
+  }
+
+  public flyToMesh(targetMesh: AbstractMesh, radius: number = 4, onComplete?: () => void) {
+    const scene = this.babylonService.currentScene;
+    const camera = this.babylonService.currentCamera;
+    if (!scene || !camera || this.isTransitioning) return;
+
+    this.isTransitioning = true;
+    const frameRate = 30;
+    const duration = 60;
+
+    const targetPos = targetMesh.absolutePosition.clone();
+
+    const animRadius = new Animation("zoom", "radius", frameRate, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
+    const animTarget = new Animation("move", "target", frameRate, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
+
+    const easing = new CubicEase();
+    easing.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
+    [animRadius, animTarget].forEach(a => a.setEasingFunction(easing));
+
+    animRadius.setKeys([{ frame: 0, value: camera.radius }, { frame: duration, value: radius }]);
+    animTarget.setKeys([{ frame: 0, value: camera.target }, { frame: duration, value: targetPos }]);
+
+    scene.beginDirectAnimation(camera, [animRadius, animTarget], 0, duration, false, 1, () => {
+      this.isTransitioning = false;
+      if (onComplete) onComplete();
+    });
+  }
+
+  public resetCameraView(onComplete?: () => void) {
+    const scene = this.babylonService.currentScene;
+    const camera = this.babylonService.currentCamera;
+    if (!scene || !camera) return;
+
+    this.isTransitioning = true;
+    const frameRate = 60;
+    const duration = 90;
+
+    const animRadius = new Animation("zoomOut", "radius", frameRate, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
+    const animTarget = new Animation("resetTarget", "target", frameRate, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
+
+    const easing = new CubicEase();
+    easing.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
+    [animRadius, animTarget].forEach(a => a.setEasingFunction(easing));
+
+    animRadius.setKeys([{ frame: 0, value: camera.radius }, { frame: duration, value: 40 }]); // Increased from 25 to 40 for better overview
+    animTarget.setKeys([{ frame: 0, value: camera.target }, { frame: duration, value: Vector3.Zero() }]);
+
+    scene.beginDirectAnimation(camera, [animRadius, animTarget], 0, duration, false, 1, () => {
+      this.isTransitioning = false;
+      if (onComplete) onComplete();
+    });
   }
 
   ngOnDestroy() {

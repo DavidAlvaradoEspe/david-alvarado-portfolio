@@ -1,4 +1,8 @@
-/* Global Variables for Treasure Map Puzzle */
+@font-face {
+  font-family: 'TreasurePlanet';
+  src: url('/assets/fonts/TreasurePlanet-Regular.ttf') format('truetype');
+}
+
 :root {
   --color-gold: #c78835;
   --color-neon: #00ffff;
@@ -16,7 +20,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'TreasurePlanet', sans-serif;
   background-color: var(--bg-space);
   color: #ffffff;
 }
