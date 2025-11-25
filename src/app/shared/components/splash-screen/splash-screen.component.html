@@ -1,0 +1,27 @@
+@if (splashService.show$ | async) {
+  <div
+    class="splash-screen"
+    [class.transparent-mode]="splashService.isTransparent"
+  >
+    <div class="splash-content">
+      <div class="splash-icon-container">
+        <img
+          src="assets/icons/map-icon.png"
+          alt="Loading Map"
+          class="treasure-icon"
+        />
+        <div class="glow-effect"></div>
+      </div>
+
+      <h1 class="splash-title">
+        {{ (splashService.message$ | async) || 'Initializing...' }}
+      </h1>
+
+      <div class="loading-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+}

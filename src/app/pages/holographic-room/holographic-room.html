@@ -1,0 +1,82 @@
+<div class="holographic-container">
+  <canvas #renderCanvas class="render-canvas"></canvas>
+  @if(!puzzleStore.isLoading()){
+    <!-- Persistent HUD -->
+    <div class="hud-overlay">
+      <div class="status-bar">SYSTEM: ONLINE</div>
+      <div class="status-bar right">VISUAL: OPTIMIZED</div>
+    </div>
+
+    <!-- Content Panel (Only shows when a star is clicked) -->
+    <div class="holo-panel" [class.active]="isDetailsOpen()">
+
+      @if (activeSection(); as section) {
+        <div class="panel-header">
+          <h2 class="neon-title">{{ section.title }}</h2>
+          <button class="close-btn" (click)="closeDetails()">×</button>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+          <!-- ABOUT TEMPLATE -->
+          @if (section.type === 'about') {
+            <p class="summary-text">{{ section.content.summary }}</p>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>ROLE</label> <span>{{ section.content.role }}</span>
+              </div>
+              <div class="info-item">
+                <label>LOC</label> <span>{{ section.content.location }}</span>
+              </div>
+              <div class="info-item">
+                <label>MAIL</label> <a [href]="'mailto:' + section.content.contact">{{ section.content.contact }}</a>
+              </div>
+            </div>
+          }
+
+          <!-- EXPERIENCE TEMPLATE -->
+          @if (section.type === 'experience') {
+            @for (job of section.content; track job.company) {
+              <div class="job-card">
+                <h3>{{ job.role }}</h3>
+                <div class="job-meta">{{ job.company }} | <span class="accent">{{ job.period }}</span></div>
+                <ul>
+                  @for (ach of job.achievements; track ach) { <li>{{ ach }}</li> }
+                </ul>
+              </div>
+            }
+          }
+
+          <!-- SKILLS TEMPLATE -->
+          @if (section.type === 'skills') {
+            <div class="skills-grid">
+              <div class="skill-category">
+                <h4>FRONTEND</h4>
+                <div class="tags">
+                  @for (skill of section.content.frontend; track skill) { <span class="tag">{{ skill }}</span> }
+                </div>
+              </div>
+              <div class="skill-category">
+                <h4>BACKEND</h4>
+                <div class="tags">
+                  @for (skill of section.content.backend; track skill) { <span class="tag">{{ skill }}</span> }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- EDUCATION TEMPLATE -->
+          @if (section.type === 'education') {
+            <div class="edu-card">
+              <h3>{{ section.content.degree }}</h3>
+              <p>{{ section.content.school }}</p>
+              <span class="accent">{{ section.content.period }}</span>
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

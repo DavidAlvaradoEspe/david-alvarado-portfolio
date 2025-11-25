@@ -1,0 +1,18 @@
+<div class="closed-map-container">
+  <canvas #renderCanvas class="render-canvas"></canvas>
+  @if(!puzzleStore.isUnlocked() && !puzzleStore.isLoading()){
+    <div class="puzzle-hints">
+      <div class="hint-title">UNLOCK THE MAP</div>
+      <div class="sequence-display">
+        @for (arrow of SEQUENCE_DISPLAY; track arrow ; let i = $index) {
+          <span
+            class="sequence-step"
+            [class.completed]="i < puzzleStep"
+            [class.active]="i === puzzleStep">
+            {{ arrow }}
+          </span>
+        }
+      </div>
+    </div>
+  }
+</div>
