@@ -85,7 +85,7 @@ export class BabylonSceneService implements OnDestroy {
   private camera: ArcRotateCamera | null = null;
   private canvas: HTMLCanvasElement | null = null;
   private framingBehavior: FramingBehavior | null = null;
-  private envTexture = "/assets/textures/environmentSpecular.env";
+  private envTexture = "assets/textures/environmentSpecular.env";
   private isTransitioning = false;
   private glowLayer: GlowLayer | null = null;
   // Meshes and Helpers

@@ -20,6 +20,17 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "outputPath": "dist/t-p-portfolio",
+            "allowedCommonJsDependencies": [
+              "babylonjs",
+              "babylonjs-loaders",
+              "babylonjs-gui",
+              "babylonjs-materials",
+              "babylonjs-inspector",
+              "babylonjs-addons",
+              "babylonjs-gui-editor",
+              "babylonjs-serializers"
+            ],
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -42,7 +53,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumError": "8MB"
                 },
                 {
                   "type": "anyComponentStyle",

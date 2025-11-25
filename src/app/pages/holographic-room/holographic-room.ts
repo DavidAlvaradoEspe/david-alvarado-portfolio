@@ -153,7 +153,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     try {
       this.splashService.updateMessage("Loading galaxy background...");
 
-      const assetContainer = await this.babylonService.loadModel("/assets/models/solarsystem_hologram_with_grid.glb");
+      const assetContainer = await this.babylonService.loadModel("assets/models/solarsystem_hologram_with_grid.glb");
       assetContainer.addAllToScene();
 
 
@@ -210,7 +210,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     // Apply green material WITHOUT glow effect
     // ========================================
     try {
-      const assetContainer = await this.babylonService.loadModel("/assets/models/treasure_map.glb");
+      const assetContainer = await this.babylonService.loadModel("assets/models/treasure_map.glb");
       assetContainer.addAllToScene();
 
       // Find the root mesh of the loaded model
