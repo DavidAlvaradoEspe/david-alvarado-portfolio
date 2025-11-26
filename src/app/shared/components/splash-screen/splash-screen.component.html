@@ -1,26 +1,35 @@
 @if (splashService.show$ | async) {
-  <div
-    class="splash-screen"
-    [class.transparent-mode]="splashService.isTransparent"
-  >
+  <div class="splash-screen" [class.transparent-mode]="splashService.isTransparent">
     <div class="splash-content">
+
       <div class="splash-icon-container">
         <img
-          src="assets/icons/map-icon.png"
-          alt="Loading Map"
-          class="treasure-icon"
-        />
-        <div class="glow-effect"></div>
-      </div>
+          [src]="splashService.image$ | async"
+             alt="Map Sphere"
+             class="treasure-icon" />
 
-      <h1 class="splash-title">
-        {{ (splashService.message$ | async) || 'Initializing...' }}
+        <div class="glow-core"></div> <div class="mech-ring"></div> </div>
+
+      <h1 class="splash-title"
+          [class.holo-fade-out]="!(splashService.textVisible$ | async)">
+
+        {{ (splashService.message$ | async) }}
+
       </h1>
 
-      <div class="loading-dots">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
+      <div class="action-placeholder">
+        @if (splashService.showButton$ | async) {
+          <button class="action-btn" (click)="onContinue()">
+            {{ splashService.buttonText }}
+          </button>
+
+        } @else {
+
+          <div class="loading-indicator">
+            <span></span><span></span><span></span>
+          </div>
+
+        }
       </div>
     </div>
   </div>

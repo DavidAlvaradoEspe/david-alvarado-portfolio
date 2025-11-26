@@ -56,9 +56,12 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.splashService.updateImage('assets/icons/opened-map.png');
+    this.splashService.autoHide = false;
+    this.splashService.buttonText = "Engage";
     this.splashService.show = true;
     this.puzzleStore.setLoading(true);
-    this.splashService.updateMessage("INITIALIZING");
+    this.splashService.updateMessage("Unlocking Map");
 
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => this.initScene(), 0);
@@ -162,7 +165,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     if (!scene) return;
 
     try {
-      this.splashService.updateMessage("LOADING UNIVERSE");
 
       const assetContainer = await this.babylonService.loadModel("assets/models/solar_system.glb");
       assetContainer.addAllToScene();

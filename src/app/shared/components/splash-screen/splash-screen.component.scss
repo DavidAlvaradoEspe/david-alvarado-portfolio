@@ -9,100 +9,194 @@
   height: 100vh;
   z-index: 99999;
 
-  // Background
-  background: var(--bg-space);
-  background: radial-gradient(circle at center, color-mix(in srgb, var(--bg-space), white 10%) 0%, var(--bg-space) 100%);
+  background: radial-gradient(circle at center, #131622 0%, #050608 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  animation: fadeIn 0.5s ease-out;
 
   &.transparent-mode {
-    background: color-mix(in srgb, var(--bg-space), transparent 15%);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    background: rgba(15, 17, 26, 0.85);
+    backdrop-filter: blur(10px);
   }
 }
 
 .splash-content {
-  width: 100%;
-  max-width: 480px;
-  padding: 2rem;
-  text-align: center;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
 }
 
+/* --- THE MAP MECHANISM --- */
 .splash-icon-container {
   position: relative;
-  margin: 0 auto 2.5rem;
-  width: 160px;
-  height: 160px;
+  width: 20rem;
+  height: 100%;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .treasure-icon {
-  width: 100%;
-  height: 100%;
+  width: 70%;
+  height: 70%;
   object-fit: contain;
-  animation: float 3.5s ease-in-out infinite;
-  filter: drop-shadow(0 0 25px color-mix(in srgb, var(--color-gold), transparent 60%));
-  z-index: 2;
+  z-index: 5;
+  filter: drop-shadow(0 0 15px rgba(229, 192, 123, 0.4));
+  animation: float-map 4s ease-in-out infinite;
 }
 
-.glow-effect {
+// The holographic glow behind the map
+.glow-core {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--color-gold), transparent 80%) 0%, transparent 70%);
-  animation: pulse-glow 3.5s ease-in-out infinite;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, var(--color-neon) 0%, transparent 60%);
+  opacity: 0.15;
+  filter: blur(20px);
+  animation: pulse-glow 3s infinite alternate;
   z-index: 1;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-15px) rotate(2deg); }
+// The "Mechanical Ring" - creates the sphere lines effect via CSS
+.mech-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 1px dashed rgba(76, 244, 42, 0.47);
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(64, 250, 0, 0.1);
+  animation: spin-mech 20s linear infinite;
+  z-index: 2;
+
+  // Inner ring
+  &::after {
+    content: '';
+    position: absolute;
+    top: 10%; left: 10%; right: 10%; bottom: 10%;
+    border: 1px solid rgba(229, 192, 123, 0.2);
+    border-radius: 50%;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    animation: spin-mech-reverse 10s linear infinite;
+  }
+}
+
+/* --- TYPOGRAPHY --- */
+.splash-title {
+  color: var(--color-gold);
+  font-size: 1.8rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+
+  // Metallic Text Effect
+  background: linear-gradient(to bottom, #fff5d6 0%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+
+  opacity: 1;
+  transform: scale(1) translateY(0);
+
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in,
+    filter 0.3s ease-in;
+}
+
+.splash-title.holo-fade-out {
+  opacity: 0;
+  transform: scale(0.95) translateY(5px);
+}
+
+/* --- LOADING INDICATOR --- */
+.loading-indicator {
+  display: flex;
+  gap: 12px;
+
+  span {
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-gold);
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: sequence-fade 1.4s infinite ease-in-out both;
+
+    &:nth-child(1) { animation-delay: -0.32s; }
+    &:nth-child(2) { animation-delay: -0.16s; }
+    &:nth-child(3) { animation-delay: 0s; }
+  }
+}
+
+.action-btn {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold);
+  border-radius: 6px;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.2rem;
+  padding: 0.8rem 2.5rem;
+  cursor: pointer;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+
+  // Hover effect - Brighten up
+  &:hover {
+    background: rgba(212, 175, 55, 0.25);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
+    transform: translateY(-2px);
+  }
+
+  // Active click effect
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.action-placeholder {
+  height: 4rem;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.3s ease;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes float-map {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes spin-mech {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-mech-reverse {
+  100% { transform: rotate(-360deg); }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  0% { opacity: 0.1; transform: scale(0.8); }
+  100% { opacity: 0.25; transform: scale(1.1); }
 }
 
-.splash-title {
-  color: var(--color-gold);
-  font-size: 1.5rem;
-  font-weight: 300;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 2rem;
-  text-shadow: 0 0 10px color-mix(in srgb, var(--color-gold), transparent 70%);
-}
-
-.loading-dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  background: var(--color-gold);
-  border-radius: 50%;
-  animation: bounce 1.4s infinite ease-in-out both;
-
-  &:nth-child(1) { animation-delay: -0.32s; }
-  &:nth-child(2) { animation-delay: -0.16s; }
-}
-
-@keyframes bounce {
+@keyframes sequence-fade {
   0%, 80%, 100% { transform: scale(0); opacity: 0; }
-  40% { transform: scale(1); opacity: 1; }
+  40% { transform: scale(1); opacity: 1; box-shadow: 0 0 10px var(--color-gold); }
 }
 
 @keyframes fadeIn {
@@ -110,7 +204,9 @@
   to { opacity: 1; }
 }
 
-@media (max-width: 768px) {
-  .splash-icon-container { width: 120px; height: 120px; margin-bottom: 2rem; }
+@media (max-width: 768px) or (max-height: 700px) {
+  .splash-icon-container {
+    width: 15rem;
+  }
   .splash-title { font-size: 1.2rem; }
 }

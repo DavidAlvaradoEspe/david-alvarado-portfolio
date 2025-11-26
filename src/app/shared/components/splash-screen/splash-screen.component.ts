@@ -8,8 +8,11 @@ import { SplashScreenService } from './splash-screen-service';
   styleUrls: ['./splash-screen.component.scss'],
   standalone: true,
   imports: [CommonModule],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class SplashScreenComponent {
   constructor(public splashService: SplashScreenService) {}
+  onContinue() {
+    this.splashService.forceClose();
+  }
 }
