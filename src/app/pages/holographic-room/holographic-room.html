@@ -1,72 +1,153 @@
 <div class="holographic-container">
   <canvas #renderCanvas class="render-canvas"></canvas>
+
   @if(!puzzleStore.isLoading()){
     <div class="hud-overlay">
       <div class="status-bar">SYSTEM: ONLINE</div>
+      <div class="status-bar right">USER: GUEST</div>
     </div>
 
     <div class="holo-panel" [class.active]="isDetailsOpen()">
 
       @if (activeSection(); as section) {
         <div class="panel-header">
-          <h2 class="neon-title">{{ section.title }}</h2>
-          <button class="close-btn" (click)="closeDetails()">×</button>
+          <div class="header-content">
+            <!-- REMOVED THE NODE ID LABEL AS REQUESTED -->
+            <h2 class="neon-title">{{ section.title }}</h2>
+          </div>
+          <button class="close-btn" (click)="closeDetails()">
+            <span class="icon">×</span>
+          </button>
         </div>
 
         <div class="panel-content custom-scrollbar">
 
+          <!-- === ABOUT PROFILE SECTION === -->
           @if (section.type === 'about') {
-            <p class="summary-text">{{ section.content.summary }}</p>
-            <div class="info-grid">
-              <div class="info-item">
-                <label>Role: </label> <span>{{ section.content.role }}</span>
+            <div class="about-container">
+              <div class="profile-header">
+                <div class="avatar-frame">
+                  <img [src]="section.content.avatar" alt="David Alvarado" class="avatar-img" />
+                  <div class="scan-line"></div>
+                  <div class="avatar-ring"></div>
+                </div>
+                <div class="profile-intro">
+                  <h3>{{ section.content.role }}</h3>
+                  <span class="location">
+                    <span class="pin-icon">📍</span> {{ section.content.location }}
+                  </span>
+                  <div class="soft-skills-row">
+                    @for (skill of section.content.softSkills; track skill) {
+                      <span class="skill-pill">{{ skill }}</span>
+                    }
+                  </div>
+                </div>
               </div>
-              <div class="info-item">
-                <label>Location: </label> <span>{{ section.content.location }}</span>
+
+              <div class="bio-section">
+                @for (paragraph of section.content.bio; track paragraph) {
+                  <p>{{ paragraph }}</p>
+                }
               </div>
-              <div class="info-item">
-                <label>Email: </label> <a [href]="'mailto:' + section.content.contact">{{ section.content.contact }}</a>
+
+              <div class="connections">
+                <a [href]="section.content.socials.youtube" target="_blank" class="holo-btn youtube">
+                  <span>▶</span> D4veCovers
+                </a>
+                <a [href]="section.content.socials.linkedin" target="_blank" class="holo-btn">
+                  <span>in</span> LinkedIn
+                </a>
+                <a [href]="'mailto:' + section.content.socials.email" class="holo-btn">
+                  <span>✉</span> Contact
+                </a>
               </div>
             </div>
           }
 
-          <!-- EXPERIENCE TEMPLATE -->
+          <!-- === EXPERIENCE SECTION === -->
           @if (section.type === 'experience') {
-            @for (job of section.content; track job.company) {
-              <div class="job-card">
-                <h3>{{ job.role }}</h3>
-                <div class="job-meta">{{ job.company }} | <span class="accent">{{ job.period }}</span></div>
-                <ul>
-                  @for (ach of job.achievements; track ach) { <li>{{ ach }}</li> }
-                </ul>
-              </div>
-            }
-          }
-
-          <!-- SKILLS TEMPLATE -->
-          @if (section.type === 'skills') {
-            <div class="skills-grid">
-              <div class="skill-category">
-                <h4>FRONTEND</h4>
-                <div class="tags">
-                  @for (skill of section.content.frontend; track skill) { <span class="tag">{{ skill }}</span> }
+            <div class="timeline-container">
+              @for (job of section.content; track job.company) {
+                <div class="timeline-item">
+                  <div class="timeline-marker"></div>
+                  <div class="job-card">
+                    <div class="job-header">
+                      <h3>{{ job.role }}</h3>
+                      <span class="period">{{ job.period }}</span>
+                    </div>
+                    <h4 class="company">{{ job.company }}</h4>
+                    <p class="job-desc">{{ job.desc }}</p>
+                    <ul class="highlights">
+                      @for (hl of job.highlights; track hl) { <li>{{ hl }}</li> }
+                    </ul>
+                  </div>
                 </div>
-              </div>
-              <div class="skill-category">
-                <h4>BACKEND</h4>
-                <div class="tags">
-                  @for (skill of section.content.backend; track skill) { <span class="tag">{{ skill }}</span> }
-                </div>
-              </div>
+              }
             </div>
           }
 
-          <!-- EDUCATION TEMPLATE -->
-          @if (section.type === 'education') {
-            <div class="edu-card">
-              <h3>{{ section.content.degree }}</h3>
-              <p>{{ section.content.school }}</p>
-              <span class="accent">{{ section.content.period }}</span>
+          <!-- === PROJECTS SECTION  === -->
+          @if (section.type === 'projects') {
+            <div class="projects-grid">
+              @for (project of section.content; track project.name) {
+                <div class="project-card">
+                  <div class="card-glow"></div>
+                  <div class="project-header">
+                    <span class="category">{{ project.category }}</span>
+                    <h3>{{ project.name }}</h3>
+                  </div>
+                  <p>{{ project.description }}</p>
+                  <div class="mt-auto">
+                    <div class="tech-stack-mini">
+                      @for (tech of project.stack; track tech) { <span class="tech-pill">{{ tech }}</span> }
+                    </div>
+
+                    <div class="project-links">
+                      @if(project.link) {
+                        <a [href]="project.link" target="_blank" class="link-btn">Visit Site ↗</a>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- === SKILLS SECTION === -->
+          @if (section.type === 'skills') {
+            <div class="skills-layout">
+
+              <div class="core-skills">
+                <h4 class="section-label">CORE CAPABILITIES</h4>
+                @for (skill of section.content.core; track skill.name) {
+                  <div class="skill-bar-container">
+                    <div class="skill-info">
+                      <span>{{ skill.name }}</span>
+                      <span class="percent">{{ skill.level }}%</span>
+                    </div>
+                    <div class="bar-track">
+                      <div class="bar-fill" [style.width.%]="skill.level"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="secondary-skills">
+                <div class="skill-group">
+                  <h4 class="section-label">BACKEND & DATA</h4>
+                  <div class="tags">
+                    @for (item of section.content.backend; track item) { <span class="tag">{{ item }}</span> }
+                  </div>
+                </div>
+
+                <div class="skill-group">
+                  <h4 class="section-label">INFRA & DEVOPS</h4>
+                  <div class="tags">
+                    @for (item of section.content.devops; track item) { <span class="tag">{{ item }}</span> }
+                  </div>
+                </div>
+              </div>
+
             </div>
           }
 
@@ -74,5 +155,4 @@
       }
     </div>
   }
-
 </div>

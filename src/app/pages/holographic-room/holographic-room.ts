@@ -33,9 +33,12 @@ import { CubicEase, EasingFunction } from '@babylonjs/core/Animations/easing';
 import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
 import { MeshParticleEmitter } from '@babylonjs/core/Particles/EmitterTypes/meshParticleEmitter';
 import "@babylonjs/core/Particles/particleSystemComponent";
+import {UpperCasePipe} from '@angular/common';
 @Component({
   selector: 'app-holographic-room',
-  imports: [],
+  imports: [
+    UpperCasePipe
+  ],
   templateUrl: './holographic-room.html',
   styleUrl: './holographic-room.scss',
 })
@@ -301,7 +304,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       const pos = new Vector3(x, y, z);
 
       const color = "#00ffff";
-      const node = this.createOrbitalNode(section.title, pos, color, () => {
+      const node = this.createOrbitalNode(section.label, pos, color, () => {
         this.onNodeClicked(section, node);
       });
     });
