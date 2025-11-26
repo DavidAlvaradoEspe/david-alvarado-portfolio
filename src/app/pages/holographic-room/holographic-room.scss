@@ -46,10 +46,10 @@
   left: 50%;
   transform: translate(-50%, -40%) scale(0.9);
   width: 90%;
-  max-width: 650px; /* Slightly wider for grid content */
-  max-height: 85dvh;
-  font-family: 'Courier New', Courier, monospace; /* Kept Courier per your preference */
-  background: rgba(12, 20, 30, 0.65); /* Kept original background */
+  max-width: 650px;
+  max-height: 80dvh;
+  font-family: 'Courier New', Courier, monospace;
+  background: rgba(12, 20, 30, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 
