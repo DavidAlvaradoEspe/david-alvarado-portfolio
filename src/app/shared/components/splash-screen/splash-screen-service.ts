@@ -22,11 +22,15 @@ export class SplashScreenService {
   public isTransparent = false;
   public autoHide = true;
 
-  // 2. Control opacity
   private _textVisible$ = new BehaviorSubject<boolean>(true);
   public readonly textVisible$ = this._textVisible$.asObservable();
 
   private _messageRequest$ = new Subject<string>();
+
+  private _isExiting$ = new BehaviorSubject<boolean>(false);
+  public readonly isExiting$ = this._isExiting$.asObservable();
+
+
 
   constructor() {
     this._messageRequest$.pipe(
@@ -38,10 +42,19 @@ export class SplashScreenService {
             this._message$.next(newMsg);
             this._textVisible$.next(true);
           }),
-          delay(1000)
+          delay(500)
         );
       })
     ).subscribe();
+  }
+
+  public forceClose() {
+    this._isExiting$.next(true);
+
+    setTimeout(() => {
+      this.show = false;
+      this._isExiting$.next(false); // Reset for next time
+    }, 500);
   }
 
   public updateMessage(msg: string): void {
@@ -63,12 +76,8 @@ export class SplashScreenService {
       this.show = false;
     } else {
       this._showButton$.next(true);
-      this.updateMessage('Coordinates Locked');
+      this.updateMessage('!COORDINATES LOCKED!');
     }
-  }
-
-  public forceClose(): void {
-    this.show = false;
   }
 
   private toggleScroll(disable: boolean) {

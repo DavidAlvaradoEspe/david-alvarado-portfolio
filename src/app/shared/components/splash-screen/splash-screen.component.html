@@ -1,5 +1,7 @@
 @if (splashService.show$ | async) {
-  <div class="splash-screen" [class.transparent-mode]="splashService.isTransparent">
+  <div class="splash-screen"
+       [class.exiting]="splashService.isExiting$ | async"
+       [class.transparent-mode]="splashService.isTransparent">
     <div class="splash-content">
 
       <div class="splash-icon-container">

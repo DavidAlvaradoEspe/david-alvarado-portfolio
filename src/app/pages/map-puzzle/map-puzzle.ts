@@ -149,8 +149,6 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initializeScene();
 
     try {
-      this.splashService.updateMessage("Engaging mechanism");
-
       await this.loadInnerSphere();
       await this.loadOuterMapModel();
 
