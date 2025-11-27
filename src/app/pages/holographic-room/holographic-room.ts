@@ -1,5 +1,5 @@
 import { Component, ElementRef, NgZone, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { BabylonSceneService, ShieldSystemService } from '../../@core/services';
+import { BabylonSceneService, ShieldSystemService, NebulaBackgroundService } from '../../@core/services';
 import { PuzzleStore } from '../../@core/store/puzzle.store';
 import { SplashScreenService } from '../../shared/components/splash-screen/splash-screen-service';
 import { CV_DATA, CVSection } from '../../shared/mockedData/data';
@@ -30,6 +30,7 @@ import { CubicEase, EasingFunction } from '@babylonjs/core/Animations/easing';
 import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
 import { MeshParticleEmitter } from '@babylonjs/core/Particles/EmitterTypes/meshParticleEmitter';
 import "@babylonjs/core/Particles/particleSystemComponent";
+import {isMobileDevice} from '../../@core/utils';
 @Component({
   selector: 'app-holographic-room',
   templateUrl: './holographic-room.html',
@@ -42,14 +43,16 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   public activeSection = signal<CVSection | null>(null);
   public isDetailsOpen = signal<boolean>(false);
   private isTransitioning = false;
-
+  private floatingObserver: any = null;
+  private isMobile = isMobileDevice();
    constructor(
     private babylonService: BabylonSceneService,
     private ngZone: NgZone,
     protected puzzleStore: PuzzleStore,
     private splashService: SplashScreenService,
     private starfieldShader: StarfieldShaderService,
-    private shieldService: ShieldSystemService
+    private shieldService: ShieldSystemService,
+    private nebulaService: NebulaBackgroundService
   ) {}
 
   ngOnInit() {
@@ -121,7 +124,9 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
       this.spawnCVConstellations();
 
-      this.createShieldSystem();
+      if(!this.isMobile) this.createShieldSystem();
+
+      this.createNebulaBackground();
 
       this.babylonService.startAnimation();
 
@@ -144,7 +149,9 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     const scene = this.babylonService.currentScene;
     if (!scene) return;
 
-    const gridSphere = MeshBuilder.CreateSphere("universe", { diameter: 100, segments: 64 }, scene);
+    const segments = this.isMobile ? 32 : 64;
+
+    const gridSphere = MeshBuilder.CreateSphere("universe", { diameter: 100, segments: segments }, scene);
     const gridMat = new GridMaterial("gridMat", scene);
     gridMat.majorUnitFrequency = 5;
     gridMat.minorUnitVisibility = 1;
@@ -156,7 +163,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
     gridSphere.material = gridMat;
     gridSphere.isPickable = false;
-
   }
 
   private async loadGalaxyModel() {
@@ -238,9 +244,9 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     }
 
     let floatTime = 0;
-    scene.onBeforeRenderObservable.add(() => {
-      floatTime += 0.03; // Fast movement speed
-      coreGroup.position.y = Math.sin(floatTime) * 0.25; // Group floats together
+    this.floatingObserver = scene.onBeforeRenderObservable.add(() => {
+      floatTime += 0.03;
+      coreGroup.position.y = Math.sin(floatTime) * 0.25;
     });
 
     // ========================================
@@ -339,17 +345,19 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     const scene = this.babylonService.currentScene;
     if (!scene) throw new Error("Scene not initialized");
 
+    const segments = this.isMobile ? 8 : 16;
+
     const nodeGroup = new Mesh(name + "_group", scene);
     nodeGroup.position = position;
 
-    const planet = MeshBuilder.CreateSphere(name, { diameter: 2, segments: 16 }, scene);
+    const planet = MeshBuilder.CreateSphere(name, { diameter: 2, segments: segments }, scene);
     planet.parent = nodeGroup;
     const mat = new StandardMaterial(name + "_mat", scene);
     mat.emissiveColor = Color3.FromHexString(colorHex);
     mat.alpha = 0.8;
     planet.material = mat;
 
-    const atmo = MeshBuilder.CreateSphere(name + "_atmo", { diameter: 1.5, segments: 16 }, scene);
+    const atmo = MeshBuilder.CreateSphere(name + "_atmo", { diameter: 1.5, segments: segments }, scene);
     atmo.parent = nodeGroup;
     const atmoMat = new StandardMaterial(name + "_atmoMat", scene);
     atmoMat.emissiveColor = Color3.FromHexString(colorHex);
@@ -430,21 +438,26 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   createParticlesRing(){
     const scene = this.babylonService.currentScene;
     if (!scene) return;
+
+    const isMobile = this.isMobile;
+    const particleCount = isMobile ? 400 : 1000;
+    const tessellation = isMobile ? 24 : 48;
+
     const torusEmitter = MeshBuilder.CreateTorus("torusEmitter", {
       diameter: 25,
       thickness: 0.5,
-      tessellation: 48 },
+      tessellation: tessellation },
       scene);
     torusEmitter.isVisible = false;
     torusEmitter.scaling.y = 0.01;
-    const cloudSystem = new ParticleSystem("clouds", 1000, scene);
+
+    const cloudSystem = new ParticleSystem("clouds", particleCount, scene);
 
     cloudSystem.particleTexture = new Texture("assets/textures/flame.png", scene);
 
     cloudSystem.emitter = torusEmitter;
 
     cloudSystem.particleEmitterType = new MeshParticleEmitter(torusEmitter);
-
 
     cloudSystem.color1 = new Color4(0.2, 1.0, 0.3, 0.8);
     cloudSystem.color2 = new Color4(0.0, 1.0, 0.1, 0.7);
@@ -456,8 +469,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     cloudSystem.minLifeTime = 0.5;
     cloudSystem.maxLifeTime = 1.2;
 
-    cloudSystem.emitRate = 1000;
-
+    cloudSystem.emitRate = particleCount;
 
     cloudSystem.gravity = new Vector3(0, 0, 0);
 
@@ -466,7 +478,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
     cloudSystem.minAngularSpeed = 0;
     cloudSystem.maxAngularSpeed = Math.PI*2;
-
 
     cloudSystem.blendMode = ParticleSystem.BLENDMODE_ADD;
 
@@ -603,6 +614,17 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     });
   }
 
+  private createNebulaBackground() {
+    const scene = this.babylonService.currentScene;
+    if (!scene) return;
+
+    const starsCount = this.isMobile ? 800 : 2000;
+    const nebulaCount = this.isMobile ? 80 : 200;
+
+    this.nebulaService.createNebulaBackground(scene, true, starsCount, nebulaCount);
+    this.nebulaService.startSystems();
+  }
+
   private createShieldSystem() {
     const scene = this.babylonService.currentScene;
     if (!scene) return;
@@ -615,8 +637,14 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
     this.shieldService.startAnimation();
   }
-  ngOnDestroy() {
 
+  ngOnDestroy() {
+    if (this.floatingObserver && this.babylonService.currentScene) {
+      this.babylonService.currentScene.onBeforeRenderObservable.remove(this.floatingObserver);
+      this.floatingObserver = null;
+    }
+
+    this.nebulaService.dispose();
     this.shieldService.dispose();
 
     this.starfieldShader.dispose();
