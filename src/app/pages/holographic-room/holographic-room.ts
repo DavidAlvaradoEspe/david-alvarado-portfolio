@@ -50,7 +50,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     protected puzzleStore: PuzzleStore,
     private splashService: SplashScreenService,
     private shieldService: ShieldSystemService,
-    private nebulaService: NebulaBackgroundService
+    private nebulaService: NebulaBackgroundService,
   ) {}
 
   ngOnInit() {
@@ -61,9 +61,27 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     this.puzzleStore.setLoading(true);
     this.splashService.updateMessage("Unlocking Map");
 
+    this.injectStructuredData();
+
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => this.initScene(), 0);
     });
+  }
+
+  private injectStructuredData(): void {
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "David Alvarado",
+      "jobTitle": "Full Stack Developer",
+      "description": "Creative technologist specializing in full-stack development and interactive web experiences",
+      "url": window.location.origin,
+      "image": `${window.location.origin}/assets/images/david_tp.jpg`,
+      "sameAs": []
+    });
+    document.head.appendChild(script);
   }
 
   private async initScene() {

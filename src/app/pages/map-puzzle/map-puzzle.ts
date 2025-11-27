@@ -115,6 +115,29 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.splashService.show = true;
     this.puzzleStore.setLoading(true);
+    this.injectStructuredData();
+  }
+
+  private injectStructuredData(): void {
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Interactive Treasure Map Puzzle",
+      "description": "Unlock David Alvarado's portfolio by solving an interactive 3D treasure map puzzle with swipe gestures",
+      "author": {
+        "@type": "Person",
+        "name": "David Alvarado",
+        "jobTitle": "Full Stack Developer"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "David Alvarado Portfolio",
+        "url": window.location.origin
+      }
+    });
+    document.head.appendChild(script);
   }
 
   ngAfterViewInit(): void {

@@ -3,7 +3,7 @@
 
   @if(!puzzleStore.isUnlocked() && !puzzleStore.isLoading()){
     <div class="puzzle-hints">
-      <div class="hint-title">UNLOCK MAP</div>
+      <h1 class="hint-title">UNLOCK MAP</h1>
       <div class="sequence-display">
         @for (direction of SEQUENCE_DISPLAY; track direction ; let i = $index) {
           <span
