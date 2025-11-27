@@ -139,7 +139,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
       this.spawnCVConstellations();
 
-      if(!this.isMobile) this.createShieldSystem();
+      this.createShieldSystem();
 
       this.createNebulaBackground();
 
