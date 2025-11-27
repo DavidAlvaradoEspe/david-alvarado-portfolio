@@ -681,11 +681,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     const scene = this.babylonService.currentScene;
     if (!scene) return;
 
-    this.shieldService.createShieldSystem(
-      scene,
-      50,
-      25
-    );
+    this.shieldService.createShieldSystem(scene, 0, 25);
 
     this.shieldService.startAnimation();
   }

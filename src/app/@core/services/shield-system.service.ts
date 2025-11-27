@@ -10,20 +10,34 @@ import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { InstancedMesh } from '@babylonjs/core/Meshes/instancedMesh';
 
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+import { isMobileDevice } from '../utils';
 
 const SHIELD_CONFIG = {
   NEON_COLOR: new Color3(0.1, 1.0, 0.1),
   ROTATION_SPEED_Y: 0.001,
   ROTATION_SPEED_Z: 0.0005,
   STROKE_WIDTH: 0.08,
-  TUBE_TESSELLATION: 6,
-  SPHERE_SEGMENTS: 6,
-  ARC_SEGMENTS: 24,
-  DEFAULT_GLYPH_COUNT: 50,
+
+  MOBILE_GLYPH_COUNT: 20,
+  DESKTOP_GLYPH_COUNT: 50,
+
+  MOBILE_TUBE_TESSELLATION: 4,
+  DESKTOP_TUBE_TESSELLATION: 8,
+
+  MOBILE_SPHERE_SEGMENTS: 4,
+  DESKTOP_SPHERE_SEGMENTS: 8,
+
+  MOBILE_ARC_SEGMENTS: 12,
+  DESKTOP_ARC_SEGMENTS: 32,
+
   DEFAULT_RADIUS: 20,
   RADIUS_VARIATION: 4.0,
-  MIN_RING_COUNT: 1,
-  MAX_RING_COUNT: 3,
+
+  MOBILE_MIN_RING_COUNT: 1,
+  MOBILE_MAX_RING_COUNT: 2,
+  DESKTOP_MIN_RING_COUNT: 1,
+  DESKTOP_MAX_RING_COUNT: 3,
+
   BASE_RING_RADIUS: 0.8,
   RING_SPACING: 0.5,
   DOT_SCALE: 0.4,
@@ -31,8 +45,12 @@ const SHIELD_CONFIG = {
   CONNECTOR_BASE_RADIUS: 0.6,
   MIN_LINE_LENGTH: 2.0,
   MAX_LINE_LENGTH: 4.0,
-  MIN_GLYPH_SCALE: 0.2,
-  MAX_GLYPH_SCALE: 0.8,
+
+  MOBILE_MIN_GLYPH_SCALE: 0.3,
+  MOBILE_MAX_GLYPH_SCALE: 0.6,
+  DESKTOP_MIN_GLYPH_SCALE: 0.5,
+  DESKTOP_MAX_GLYPH_SCALE: 1.0,
+
   ENABLE_INSTANCING: true,
 } as const;
 
@@ -44,6 +62,7 @@ export class ShieldSystemService {
   private neonMaterial: StandardMaterial | null = null;
   private scene: Scene | null = null;
   private isAnimating: boolean = false;
+  private isMobile: boolean = false;
 
   private baseDotMesh: Mesh | null = null;
   private baseRingMeshes: Map<number, Mesh> = new Map();
@@ -53,15 +72,20 @@ export class ShieldSystemService {
 
   public createShieldSystem(
     scene: Scene,
-    glyphCount: number = SHIELD_CONFIG.DEFAULT_GLYPH_COUNT,
+    glyphCount: number = 0,
     radius: number = SHIELD_CONFIG.DEFAULT_RADIUS
   ): TransformNode {
     this.scene = scene;
+    this.isMobile = isMobileDevice();
+
+    const finalGlyphCount = glyphCount > 0
+      ? glyphCount
+      : (this.isMobile ? SHIELD_CONFIG.MOBILE_GLYPH_COUNT : SHIELD_CONFIG.DESKTOP_GLYPH_COUNT);
 
     this.createNeonMaterial(scene);
     this.createBaseMeshes(scene);
 
-    this.shieldRoot = this.generateSpaceHUD(glyphCount, radius, scene);
+    this.shieldRoot = this.generateSpaceHUD(finalGlyphCount, radius, scene);
 
     return this.shieldRoot;
   }
@@ -129,9 +153,13 @@ export class ShieldSystemService {
   }
 
   private createBaseMeshes(scene: Scene): void {
+    const segments = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_SPHERE_SEGMENTS
+      : SHIELD_CONFIG.DESKTOP_SPHERE_SEGMENTS;
+
     this.baseDotMesh = MeshBuilder.CreateSphere("baseDot", {
       diameter: 1,
-      segments: SHIELD_CONFIG.SPHERE_SEGMENTS
+      segments: segments
     }, scene);
     this.baseDotMesh.isVisible = false;
     if (this.neonMaterial) {
@@ -143,11 +171,14 @@ export class ShieldSystemService {
       scene
     );
 
-    const ringRadii = [
-      SHIELD_CONFIG.BASE_RING_RADIUS,
-      SHIELD_CONFIG.BASE_RING_RADIUS + SHIELD_CONFIG.RING_SPACING,
-      SHIELD_CONFIG.BASE_RING_RADIUS + (SHIELD_CONFIG.RING_SPACING * 2)
-    ];
+    const maxRingCount = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_MAX_RING_COUNT
+      : SHIELD_CONFIG.DESKTOP_MAX_RING_COUNT;
+
+    const ringRadii = [];
+    for (let i = 0; i < maxRingCount; i++) {
+      ringRadii.push(SHIELD_CONFIG.BASE_RING_RADIUS + (SHIELD_CONFIG.RING_SPACING * i));
+    }
 
     ringRadii.forEach(radius => {
       const ring = this.createBaseRingMesh(radius, scene);
@@ -156,11 +187,20 @@ export class ShieldSystemService {
   }
 
   private createBaseRingMesh(radius: number, scene: Scene): Mesh {
-    const points = this.createArcPoints(radius, 0, Math.PI * 2, SHIELD_CONFIG.ARC_SEGMENTS);
+    const arcSegments = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_ARC_SEGMENTS
+      : SHIELD_CONFIG.DESKTOP_ARC_SEGMENTS;
+
+    const points = this.createArcPoints(radius, 0, Math.PI * 2, arcSegments);
+
+    const tessellation = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_TUBE_TESSELLATION
+      : SHIELD_CONFIG.DESKTOP_TUBE_TESSELLATION;
+
     const ring = MeshBuilder.CreateTube(`baseRing_${radius}`, {
       path: points,
       radius: SHIELD_CONFIG.STROKE_WIDTH / 2,
-      tessellation: SHIELD_CONFIG.TUBE_TESSELLATION,
+      tessellation: tessellation,
       cap: Mesh.CAP_ALL,
       updatable: false
     }, scene);
@@ -186,10 +226,14 @@ export class ShieldSystemService {
   }
 
   private createStrokeMesh(points: Vector3[], width: number, scene: Scene): Mesh {
+    const tessellation = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_TUBE_TESSELLATION
+      : SHIELD_CONFIG.DESKTOP_TUBE_TESSELLATION;
+
     const tube = MeshBuilder.CreateTube("stroke", {
       path: points,
       radius: width / 2,
-      tessellation: SHIELD_CONFIG.TUBE_TESSELLATION,
+      tessellation: tessellation,
       cap: Mesh.CAP_ALL,
       updatable: false
     }, scene);
@@ -212,9 +256,13 @@ export class ShieldSystemService {
   }
 
   private createOriginalDot(scale: number, scene: Scene): Mesh {
+    const segments = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_SPHERE_SEGMENTS
+      : SHIELD_CONFIG.DESKTOP_SPHERE_SEGMENTS;
+
     const dot = MeshBuilder.CreateSphere("dot", {
       diameter: 1,
-      segments: SHIELD_CONFIG.SPHERE_SEGMENTS
+      segments: segments
     }, scene);
 
     dot.scaling = new Vector3(scale, scale, 0.1);
@@ -234,7 +282,15 @@ export class ShieldSystemService {
       dot.parent = container;
     }
 
-    const ringCount = Math.floor(Math.random() * SHIELD_CONFIG.MAX_RING_COUNT) + SHIELD_CONFIG.MIN_RING_COUNT;
+    const minRingCount = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_MIN_RING_COUNT
+      : SHIELD_CONFIG.DESKTOP_MIN_RING_COUNT;
+    const maxRingCount = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_MAX_RING_COUNT
+      : SHIELD_CONFIG.DESKTOP_MAX_RING_COUNT;
+
+    const ringCount = Math.floor(Math.random() * (maxRingCount - minRingCount + 1)) + minRingCount;
+
     for (let i = 0; i < ringCount; i++) {
       const radius = SHIELD_CONFIG.BASE_RING_RADIUS + (i * SHIELD_CONFIG.RING_SPACING);
       const baseMesh = this.baseRingMeshes.get(radius);
@@ -261,7 +317,11 @@ export class ShieldSystemService {
           end = start + (Math.PI * 2) - gap;
         }
 
-        const points = this.createArcPoints(radius, start, end, SHIELD_CONFIG.ARC_SEGMENTS);
+        const arcSegments = this.isMobile
+          ? SHIELD_CONFIG.MOBILE_ARC_SEGMENTS
+          : SHIELD_CONFIG.DESKTOP_ARC_SEGMENTS;
+
+        const points = this.createArcPoints(radius, start, end, arcSegments);
         const ring = this.createStrokeMesh(points, SHIELD_CONFIG.STROKE_WIDTH, scene);
         ring.parent = container;
         ring.rotation.z = Math.random() * Math.PI * 2;
@@ -276,7 +336,11 @@ export class ShieldSystemService {
     const gap = Math.random() * 1.5 + 0.5;
     const end = start + (Math.PI * 2) - gap;
 
-    const points = this.createArcPoints(radius, start, end, SHIELD_CONFIG.ARC_SEGMENTS);
+    const arcSegments = this.isMobile
+      ? SHIELD_CONFIG.MOBILE_ARC_SEGMENTS
+      : SHIELD_CONFIG.DESKTOP_ARC_SEGMENTS;
+
+    const points = this.createArcPoints(radius, start, end, arcSegments);
     return this.createStrokeMesh(points, SHIELD_CONFIG.STROKE_WIDTH, scene);
   }
 
@@ -287,11 +351,15 @@ export class ShieldSystemService {
       const ringInstance = this.baseFullRingMesh.createInstance("connectorRingInstance");
       ringInstance.parent = container;
     } else {
+      const arcSegments = this.isMobile
+        ? SHIELD_CONFIG.MOBILE_ARC_SEGMENTS
+        : SHIELD_CONFIG.DESKTOP_ARC_SEGMENTS;
+
       const points = this.createArcPoints(
         SHIELD_CONFIG.CONNECTOR_BASE_RADIUS,
         0,
         Math.PI * 2,
-        SHIELD_CONFIG.ARC_SEGMENTS
+        arcSegments
       );
       const ring = this.createStrokeMesh(points, SHIELD_CONFIG.STROKE_WIDTH, scene);
       ring.parent = container;
@@ -340,8 +408,14 @@ export class ShieldSystemService {
       glyphContainer.lookAt(Vector3.Zero());
       glyphContainer.rotation.x -= Math.PI / 2;
 
-      const scale = SHIELD_CONFIG.MIN_GLYPH_SCALE +
-                   Math.random() * (SHIELD_CONFIG.MAX_GLYPH_SCALE - SHIELD_CONFIG.MIN_GLYPH_SCALE);
+      const minScale = this.isMobile
+        ? SHIELD_CONFIG.MOBILE_MIN_GLYPH_SCALE
+        : SHIELD_CONFIG.DESKTOP_MIN_GLYPH_SCALE;
+      const maxScale = this.isMobile
+        ? SHIELD_CONFIG.MOBILE_MAX_GLYPH_SCALE
+        : SHIELD_CONFIG.DESKTOP_MAX_GLYPH_SCALE;
+
+      const scale = minScale + Math.random() * (maxScale - minScale);
       glyphContainer.scaling = new Vector3(scale, scale, scale);
     }
 
