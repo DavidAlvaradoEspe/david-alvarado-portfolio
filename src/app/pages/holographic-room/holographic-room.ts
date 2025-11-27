@@ -3,7 +3,6 @@ import { BabylonSceneService, ShieldSystemService, NebulaBackgroundService } fro
 import { PuzzleStore } from '../../@core/store/puzzle.store';
 import { SplashScreenService } from '../../shared/components/splash-screen/splash-screen-service';
 import { CV_DATA, CVSection } from '../../shared/mockedData/data';
-import { StarfieldShaderService } from './starfield-shader.service';
 
 // --- BABYLON CORE ---
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
@@ -50,7 +49,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     protected puzzleStore: PuzzleStore,
     private splashService: SplashScreenService,
-    private starfieldShader: StarfieldShaderService,
     private shieldService: ShieldSystemService,
     private nebulaService: NebulaBackgroundService
   ) {}
@@ -80,7 +78,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       // Initialize the Babylon scene
       this.babylonService.initScene(canvas, {
         createEnvironmentTexture: false,
-        createLights: false,
+        createLights: true,
         allowCamControls: true,
         createGlowLayer: true
       }, {
@@ -89,7 +87,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
         disablePanning: true,
       });
 
-      // Verify scene was created
       const scene = this.babylonService.currentScene;
       if (!scene) {
         console.error('Scene initialization failed!');
@@ -98,7 +95,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
       scene.clearColor = new Color4(0.02, 0.02, 0.08, 1);
 
-     const camera = this.babylonService.currentCamera;
+      const camera = this.babylonService.currentCamera;
       if (camera) {
         camera.radius = 35;
         camera.beta = Math.PI / 2.3;
@@ -112,9 +109,9 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
         camera.lowerBetaLimit = 0.1;
         camera.upperBetaLimit = Math.PI - 0.1;
-
-        this.starfieldShader.initStarfieldEffect(scene, camera);
       }
+
+      await this.loadNebulaDome();
 
       this.createGridUniverse();
 
@@ -197,6 +194,39 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error("Failed to load galaxy.glb:", error);
+    }
+  }
+
+  private async loadNebulaDome() {
+    const scene = this.babylonService.currentScene;
+    if (!scene) return;
+
+    try {
+      const assetContainer = await this.babylonService.loadModel("assets/models/nebula_dome.glb");
+      assetContainer.addAllToScene();
+
+      const loadedMeshes = assetContainer.meshes;
+
+      if (loadedMeshes.length > 0) {
+        const nebulaRoot = loadedMeshes[0] as AbstractMesh;
+
+        nebulaRoot.position = Vector3.Zero();
+        nebulaRoot.scaling = new Vector3(100, 100, 100);
+
+        loadedMeshes.forEach((mesh) => {
+          mesh.isPickable = false;
+          if (mesh.material) {
+            const material = mesh.material as StandardMaterial;
+            material.backFaceCulling = false;
+          }
+          const glowLayer = this.babylonService.currentGlowLayer;
+          if (glowLayer && mesh) {
+            glowLayer.addExcludedMesh(mesh as any);
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load nebula_dome.glb:", error);
     }
   }
 
@@ -650,8 +680,6 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
     this.nebulaService.dispose();
     this.shieldService.dispose();
-
-    this.starfieldShader.dispose();
     this.babylonService.dispose();
   }
 

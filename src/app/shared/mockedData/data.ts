@@ -16,10 +16,10 @@ export const CV_DATA: CVSection[] = [
     position: [0, 2, 0],
     content: {
       avatar: "assets/images/david_tp.jpg",
-      role: "Front-End Tech Lead",
+      role: "SWE Front-End Tech Lead",
       location: "Ecuador",
       bio: [
-        "I blend technical precision with artistic creativity. With over 5 years of experience, I specialize in building high-performance architectures using Angular, TypeScript, and 3D web technologies. My attention to detail ensures that every pixel and every line of code serves a purpose.",
+        "I blend technical precision with artistic creativity. With over 5 years of experience, I specialize in designing and implementing high-performance architectures using modern FrontEnd and BackEnd technologies and frameworks, carefully selecting the architecture to match each project's specific requirements. My attention to detail ensures that every pixel and every line of code serves a purpose.",
         "Beyond the screen, I am a passionate singer and content creator. On my YouTube channel, I translate and perform songs, applying the same dedication to musical nuances as I do to software quality.",
         "I value autonomy and trust. I'm a responsible leader who fosters good communication and a positive environment, believing that great software is built by happy, self-managed teams."
       ],
