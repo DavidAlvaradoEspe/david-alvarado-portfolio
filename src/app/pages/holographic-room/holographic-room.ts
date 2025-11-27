@@ -1,5 +1,5 @@
 import { Component, ElementRef, NgZone, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { BabylonSceneService } from '../../@core/services/babylon-scene';
+import { BabylonSceneService, ShieldSystemService } from '../../@core/services';
 import { PuzzleStore } from '../../@core/store/puzzle.store';
 import { SplashScreenService } from '../../shared/components/splash-screen/splash-screen-service';
 import { CV_DATA, CVSection } from '../../shared/mockedData/data';
@@ -43,12 +43,13 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   public isDetailsOpen = signal<boolean>(false);
   private isTransitioning = false;
 
-  constructor(
+   constructor(
     private babylonService: BabylonSceneService,
     private ngZone: NgZone,
     protected puzzleStore: PuzzleStore,
     private splashService: SplashScreenService,
-    private starfieldShader: StarfieldShaderService
+    private starfieldShader: StarfieldShaderService,
+    private shieldService: ShieldSystemService
   ) {}
 
   ngOnInit() {
@@ -119,6 +120,8 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       await this.createCentralHologram();
 
       this.spawnCVConstellations();
+
+      this.createShieldSystem();
 
       this.babylonService.startAnimation();
 
@@ -600,7 +603,22 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     });
   }
 
+  private createShieldSystem() {
+    const scene = this.babylonService.currentScene;
+    if (!scene) return;
+
+    this.shieldService.createShieldSystem(
+      scene,
+      50,
+      25
+    );
+
+    this.shieldService.startAnimation();
+  }
   ngOnDestroy() {
+
+    this.shieldService.dispose();
+
     this.starfieldShader.dispose();
     this.babylonService.dispose();
   }
