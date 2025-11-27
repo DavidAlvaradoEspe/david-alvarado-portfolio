@@ -25,7 +25,8 @@ const NEBULA_CONFIG = {
   NEBULA_COLOR_2: new Color4(0.0, 0.2, 0.0, 0.02),
   NEBULA_EMIT_BOX_MIN: new Vector3(-80, -80, -80),
   NEBULA_EMIT_BOX_MAX: new Vector3(80, 80, 80),
-  PARTICLE_LIFETIME: 9999,
+  PARTICLE_LIFETIME: 10800, // in seconds (3 hours)
+  ENABLE_TEXTURE_REUSE: true,
 } as const;
 
 @Injectable({
@@ -51,7 +52,9 @@ export class NebulaBackgroundService {
       this.setupFog(scene);
     }
 
-    this.particleTexture = this.createParticleTexture(scene);
+    if (!this.particleTexture || !NEBULA_CONFIG.ENABLE_TEXTURE_REUSE) {
+      this.particleTexture = this.createParticleTexture(scene);
+    }
 
     this.createStarsSystem(scene, starsCount);
     this.createNebulaSystem(scene, nebulaCount);
@@ -93,6 +96,7 @@ export class NebulaBackgroundService {
       this.particleTexture = null;
     }
 
+    this.scene = null;
   }
 
   private setupFog(scene: Scene): void {
@@ -126,10 +130,9 @@ export class NebulaBackgroundService {
   }
 
   private createStarsSystem(scene: Scene, count?: number): void {
+    const particleCount = count ?? NEBULA_CONFIG.STARS_COUNT;
 
-    const starsCount = count ?? NEBULA_CONFIG.STARS_COUNT;
-
-    this.starsSystem = new ParticleSystem("stars", starsCount, scene);
+    this.starsSystem = new ParticleSystem("stars", particleCount, scene);
     this.starsSystem.particleTexture = this.particleTexture;
     this.starsSystem.emitter = Vector3.Zero();
 
@@ -138,16 +141,16 @@ export class NebulaBackgroundService {
 
     this.starsSystem.color1 = NEBULA_CONFIG.STARS_COLOR_1;
     this.starsSystem.color2 = NEBULA_CONFIG.STARS_COLOR_2;
-    this.starsSystem.colorDead = new Color4(0, 0, 0, 0.0);
+    this.starsSystem.colorDead = new Color4(0, 0, 0, 0);
 
     this.starsSystem.minSize = NEBULA_CONFIG.STARS_MIN_SIZE;
     this.starsSystem.maxSize = NEBULA_CONFIG.STARS_MAX_SIZE;
 
-    this.starsSystem.minLifeTime = NEBULA_CONFIG.PARTICLE_LIFETIME;
-    this.starsSystem.maxLifeTime = NEBULA_CONFIG.PARTICLE_LIFETIME;
+    this.starsSystem.minLifeTime = NEBULA_CONFIG.PARTICLE_LIFETIME * 60 * this.starsSystem.updateSpeed;
+    this.starsSystem.maxLifeTime = this.starsSystem.minLifeTime;
 
     this.starsSystem.emitRate = 0;
-    this.starsSystem.manualEmitCount = NEBULA_CONFIG.STARS_COUNT;
+    this.starsSystem.manualEmitCount = particleCount;
     this.starsSystem.blendMode = ParticleSystem.BLENDMODE_ADD;
   }
 
@@ -163,13 +166,14 @@ export class NebulaBackgroundService {
 
     this.nebulaSystem.color1 = NEBULA_CONFIG.NEBULA_COLOR_1;
     this.nebulaSystem.color2 = NEBULA_CONFIG.NEBULA_COLOR_2;
-    this.nebulaSystem.colorDead = new Color4(0, 0, 0, 0.0);
+    this.nebulaSystem.colorDead = new Color4(0, 0, 0, 0);
 
     this.nebulaSystem.minSize = NEBULA_CONFIG.NEBULA_MIN_SIZE;
     this.nebulaSystem.maxSize = NEBULA_CONFIG.NEBULA_MAX_SIZE;
 
-    this.nebulaSystem.minLifeTime = NEBULA_CONFIG.PARTICLE_LIFETIME;
-    this.nebulaSystem.maxLifeTime = NEBULA_CONFIG.PARTICLE_LIFETIME;
+
+    this.nebulaSystem.minLifeTime = NEBULA_CONFIG.PARTICLE_LIFETIME * 60 * this.nebulaSystem.updateSpeed;
+    this.nebulaSystem.maxLifeTime = this.nebulaSystem.minLifeTime;
 
     this.nebulaSystem.emitRate = 0;
     this.nebulaSystem.manualEmitCount = particleCount;

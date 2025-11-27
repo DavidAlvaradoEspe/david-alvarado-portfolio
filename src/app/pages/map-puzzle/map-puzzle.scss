@@ -11,9 +11,11 @@
   height: 100%;
   display: block;
   outline: none;
+  cursor: grab;
+  &:active { cursor: grabbing; }
 }
 
-/* Puzzle Hints */
+/* --- Puzzle Hints (Top) --- */
 .puzzle-hints {
   position: absolute;
   top: 1rem;
@@ -25,6 +27,7 @@
   border: 2px solid var(--color-gold);
   box-shadow: 0 0 20px rgba(199, 136, 53, 0.5);
   z-index: 100;
+  pointer-events: none;
 }
 
 .hint-title {
@@ -42,7 +45,7 @@
 }
 
 .sequence-step {
-  padding: 1rem;
+  padding: 0.5rem;
   background: rgba(199, 136, 53, 0.15);
   border: 1px solid var(--color-gold);
   border-radius: 6px;
@@ -51,12 +54,20 @@
   font-weight: 600;
   transition: all 0.3s ease;
   opacity: 0.5;
-  min-width: 3rem;
-  text-align: center;
-  line-height: 1;
+  min-width: 3.5rem;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   will-change: color;
-  -webkit-transform: translateZ(0);
   transform: translateZ(0);
+}
+
+
+.step-icon {
+  width: 2rem;
+  height: 2rem;
+  display: block;
 }
 
 .sequence-step.active {
@@ -73,6 +84,140 @@
   color: #00ff00;
 }
 
+/* --- Swipe Guide Overlay --- */
+.swipe-guide-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  pointer-events: none;
+  z-index: 90;
+  opacity: 0.8;
+}
+
+.guide-text {
+  color: white;
+  font-family: 'TreasurePlanet', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(199, 136, 53, 0.8);
+  animation: textFade 2s infinite;
+}
+
+.hand-container {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+}
+
+.hand-icon {
+  width: 100%;
+  height: 100%;
+  color: white;
+  filter: drop-shadow(0 0 5px var(--color-neon));
+  position: relative;
+  z-index: 2;
+}
+
+.touch-point {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: var(--color-neon);
+  border-radius: 50%;
+  transform: translate(-50%, 0);
+  opacity: 0;
+  box-shadow: 0 0 15px var(--color-neon);
+  z-index: 1;
+}
+
+/* --- Animations --- */
+
+/* RIGHT Animation */
+.hand-container.anim-right {
+  animation: swipeRight 2s infinite ease-in-out;
+}
+/* Use specific animation name to force reset */
+.hand-container.anim-right .touch-point {
+  animation: touchPressRight 2s infinite ease-in-out;
+}
+
+/* DOWN Animation */
+.hand-container.anim-down {
+  animation: swipeDown 2s infinite ease-in-out;
+}
+/* Use specific animation name to force reset */
+.hand-container.anim-down .touch-point {
+  animation: touchPressDown 2s infinite ease-in-out;
+}
+
+/* LEFT Animation */
+.hand-container.anim-left {
+  animation: swipeLeft 2s infinite ease-in-out;
+}
+/* Use specific animation name to force reset */
+.hand-container.anim-left .touch-point {
+  animation: touchPressLeft 2s infinite ease-in-out;
+}
+
+/* Keyframes */
+@keyframes swipeRight {
+  0% { transform: translateX(-3rem) rotate(-10deg); opacity: 0; }
+  20% { transform: translateX(-3rem) rotate(-10deg); opacity: 1; } /* Start pos */
+  60% { transform: translateX(3rem) rotate(0deg); opacity: 1; }   /* End pos */
+  80% { transform: translateX(3rem) rotate(0deg); opacity: 0; }   /* Fade out */
+  100% { transform: translateX(3rem) rotate(0deg); opacity: 0; }
+}
+
+@keyframes swipeDown {
+  0% { transform: translateY(-1.5rem); opacity: 0; }
+  20% { transform: translateY(-1.5rem); opacity: 1; }
+  60% { transform: translateY(1.5rem); opacity: 1; }
+  80% { transform: translateY(1.5rem); opacity: 0; }
+  100% { transform: translateY(1.5rem); opacity: 0; }
+}
+
+@keyframes swipeLeft {
+  0% { transform: translateX(3rem) rotate(10deg); opacity: 0; }
+  20% { transform: translateX(3rem) rotate(10deg); opacity: 1; }
+  60% { transform: translateX(-3rem) rotate(0deg); opacity: 1; }
+  80% { transform: translateX(-3rem) rotate(0deg); opacity: 0; }
+  100% { transform: translateX(-3rem) rotate(0deg); opacity: 0; }
+}
+
+
+@keyframes touchPressRight {
+  0%, 15% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+  20% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+  60% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+  70%, 100% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+}
+
+@keyframes touchPressDown {
+  0%, 15% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+  20% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+  60% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+  70%, 100% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+}
+
+@keyframes touchPressLeft {
+  0%, 15% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+  20% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+  60% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+  70%, 100% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+}
+
+@keyframes textFade {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 1; }
+}
+
 @keyframes pulse {
   0%, 100% {
     transform: scale(1);
@@ -84,8 +229,7 @@
   }
 }
 
-
-/* Responsive */
+/* Responsive Adjustments */
 @media (max-width: 768px) {
   .puzzle-hints {
     top: 10px;
@@ -101,5 +245,7 @@
     font-size: 0.75rem;
   }
 
+  .swipe-guide-overlay {
+    top: 60%;
+  }
 }
-

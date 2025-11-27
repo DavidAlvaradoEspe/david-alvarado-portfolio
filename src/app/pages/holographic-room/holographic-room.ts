@@ -440,7 +440,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     if (!scene) return;
 
     const isMobile = this.isMobile;
-    const particleCount = isMobile ? 400 : 1000;
+    const particleCount = 1000;
     const tessellation = isMobile ? 24 : 48;
 
     const torusEmitter = MeshBuilder.CreateTorus("torusEmitter", {
@@ -466,11 +466,13 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     cloudSystem.minSize = 0.8;
     cloudSystem.maxSize = 1.5;
 
-    cloudSystem.minLifeTime = 0.5;
-    cloudSystem.maxLifeTime = 1.2;
+    cloudSystem.updateSpeed = 0.002;
 
-    cloudSystem.emitRate = particleCount;
+    cloudSystem.minLifeTime = 10800 * 60 * cloudSystem.updateSpeed;
+    cloudSystem.maxLifeTime = cloudSystem.minLifeTime;
 
+    cloudSystem.emitRate = 0;
+    cloudSystem.manualEmitCount = particleCount;
     cloudSystem.gravity = new Vector3(0, 0, 0);
 
     cloudSystem.minEmitPower = 0;
@@ -479,7 +481,9 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     cloudSystem.minAngularSpeed = 0;
     cloudSystem.maxAngularSpeed = Math.PI*2;
 
-    cloudSystem.blendMode = ParticleSystem.BLENDMODE_ADD;
+    cloudSystem.blendMode = ParticleSystem.BLENDMODE_ONEONE;
+    cloudSystem.isBillboardBased = true;
+
 
     cloudSystem.start();
     return cloudSystem;
@@ -618,8 +622,8 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     const scene = this.babylonService.currentScene;
     if (!scene) return;
 
-    const starsCount = this.isMobile ? 800 : 2000;
-    const nebulaCount = this.isMobile ? 80 : 200;
+    const starsCount = this.isMobile ? 1000 : 2000;
+    const nebulaCount = this.isMobile ? 100 : 200;
 
     this.nebulaService.createNebulaBackground(scene, true, starsCount, nebulaCount);
     this.nebulaService.startSystems();

@@ -2,60 +2,40 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZ
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-// --- BABYLON IMPORTS ---
-
 import "@babylonjs/loaders/glTF";
 
-// 2. Side-Effects
-import "@babylonjs/core/Particles/particleSystemComponent";
-import "@babylonjs/core/Particles/webgl2ParticleSystem";
-import "@babylonjs/core/Loading/Plugins";
-
-// 3. Rendering Effects
 import { GlowLayer } from '@babylonjs/core/Layers/glowLayer';
 import '@babylonjs/core/PostProcesses/RenderPipeline/postProcessRenderPipelineManager';
 import '@babylonjs/core/PostProcesses/RenderPipeline/postProcessRenderEffect';
 import '@babylonjs/core/Layers/effectLayerSceneComponent';
 
-// 4. Particles (Direct Imports)
-import { GPUParticleSystem } from '@babylonjs/core/Particles/gpuParticleSystem';
-import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
-import { SphereParticleEmitter } from '@babylonjs/core/Particles/EmitterTypes/sphereParticleEmitter';
-
-// 5. Core Types & Logic
 import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { PBRMaterial } from '@babylonjs/core/Materials/PBR/pbrMaterial';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
+import { Color3 } from '@babylonjs/core/Maths/math.color';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { Texture } from '@babylonjs/core/Materials/Textures/texture';
 
-// Animations
 import { Animation } from '@babylonjs/core/Animations/animation';
 import { QuadraticEase } from '@babylonjs/core/Animations/easing';
 
-// Events & Observables
 import { PointerEventTypes, PointerInfo } from '@babylonjs/core/Events/pointerEvents';
 import { Observer } from '@babylonjs/core/Misc/observable';
 import { Nullable } from '@babylonjs/core/types';
 
-// Scene & Assets
 import { Scene } from '@babylonjs/core/scene';
 import { AssetContainer } from '@babylonjs/core/assetContainer';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 
-// --- APP IMPORTS ---
-import { BabylonSceneService } from '../../@core/services/babylon-scene';
+import { BabylonSceneService } from '../../@core/services';
 import { SplashScreenService } from '../../shared/components/splash-screen/splash-screen-service';
 import { PuzzleStore } from '../../@core/store/puzzle.store';
-import { isMobileDevice } from '../../@core/utils';
 
 type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 
 const PUZZLE_CONFIG = {
   SEQUENCE: ['right', 'down', 'left'] as SwipeDirection[],
-  SEQUENCE_DISPLAY: ['→', '↓', '←'],
+  SEQUENCE_DISPLAY: ['right', 'down', 'left'],
   SWIPE_THRESHOLD: 50,
   FLOATING_SPEED: 2.5,
   FLOATING_AMPLITUDE: 0.015,
@@ -414,25 +394,13 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
       this.babylonService.parentBox.animations = [anim];
       celebrationAnimatable = this.babylonService.currentScene.beginAnimation(this.babylonService.parentBox, 0, 60, true);
     }
-
-    if (this.mapSphere) {
-
-      this.createOrbExplosion(this.mapSphere, () => {
+      this.createFlashTransition(() => {
         if (celebrationAnimatable) {
           celebrationAnimatable.stop();
         }
         this.cleanupResources();
         this.transitionToGridRoom();
-      }).then(() => {
-        // Animation complete - cleanup already done
-      });
-    } else {
-      if (celebrationAnimatable) {
-        celebrationAnimatable.stop();
-      }
-      this.cleanupResources();
-      this.transitionToGridRoom();
-    }
+      }).then(() => {});
   }
 
   private cleanupResources() {
@@ -511,54 +479,13 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
     pBox.position.z = originalPosition.z + Math.sin(time * frequency + Math.PI / 3) * amplitude * 0.5;
   }
 
-  public createOrbExplosion(emitterMesh: AbstractMesh, onNavigate: () => void, color: Color3 = Color3.FromHexString('#020205')): Promise<void> {
+  public createFlashTransition( onNavigate: () => void, color: Color3 = Color3.FromHexString('#020205')): Promise<void> {
     const scene = this.babylonService.currentScene;
-
 
     if (!scene) return Promise.resolve();
 
     return new Promise((resolve) => {
       if (!scene) return resolve();
-
-      const isMobile = isMobileDevice();
-
-      const particleCount = isMobile ? 1500 : 3000;
-      let particleSystem: GPUParticleSystem | ParticleSystem;
-
-      if (GPUParticleSystem.IsSupported) {
-        particleSystem = new GPUParticleSystem("explosionParticles", { capacity: particleCount }, scene);
-        particleSystem.activeParticleCount = particleCount;
-      } else {
-        particleSystem = new ParticleSystem("explosionParticles", isMobile ? 300 : 600, scene);
-      }
-
-      particleSystem.particleTexture = new Texture("assets/textures/the_flare.png", scene);
-      particleSystem.emitter = emitterMesh;
-
-      const sphereEmitter = new SphereParticleEmitter();
-      sphereEmitter.radius = 0.1;
-      sphereEmitter.radiusRange = 0;
-      particleSystem.particleEmitterType = sphereEmitter;
-
-      const orbColor = Color3.FromHexString('#00ff00');
-      particleSystem.color1 = new Color4(orbColor.r * 3, orbColor.g * 3, orbColor.b * 3, 1);
-      particleSystem.color2 = new Color4(orbColor.r * 2, orbColor.g * 2, orbColor.b * 2, 1);
-      particleSystem.colorDead = new Color4(orbColor.r * 0.5, orbColor.g * 0.5, orbColor.b * 0.5, 0);
-
-      particleSystem.minSize = 0.01;
-      particleSystem.maxSize = 0.06;
-
-      particleSystem.minLifeTime = 0.8;
-      particleSystem.maxLifeTime = 1.2;
-      particleSystem.emitRate = isMobile ? 4000 : 8000;
-      particleSystem.blendMode = ParticleSystem.BLENDMODE_ADD;
-      particleSystem.gravity = new Vector3(0, 0, 0);
-
-      particleSystem.minEmitPower = 6;
-      particleSystem.maxEmitPower = 12;
-      particleSystem.updateSpeed = 0.016;
-
-      particleSystem.start();
 
       const flashPlane = MeshBuilder.CreatePlane("transitionFlash", { size: 500 }, scene);
       const camera = scene.activeCamera;
@@ -579,19 +506,14 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
 
       let elapsed = 0;
       const totalDuration = 2500;
-      const particleStopTime = 1000;
-      const flashStartTime = 1500;
-      const flashPeakTime = 2000;
-      const navigationTime = 2200;
+      const flashStartTime = 0;
+      const flashPeakTime = 1500;
+      const navigationTime = 1700;
       const flashEndTime = 2500;
       let hasNavigated = false;
 
       const observer = scene.onBeforeRenderObservable.add(() => {
         elapsed += scene!.getEngine().getDeltaTime();
-
-        if (elapsed >= particleStopTime) {
-          particleSystem.emitRate = 0;
-        }
 
         if (elapsed >= navigationTime && !hasNavigated) {
           hasNavigated = true;
@@ -619,8 +541,6 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
           flashMaterial.dispose();
 
           resolve();
-
-          setTimeout(() => particleSystem.dispose(), 500);
         }
       });
     });

@@ -1,28 +1,24 @@
 import { Injectable } from '@angular/core';
 
-// --- CORE ---
 import { Scene } from '@babylonjs/core/scene';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
 
-// --- MESHES ---
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
+import { InstancedMesh } from '@babylonjs/core/Meshes/instancedMesh';
 
-// --- MATERIALS ---
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-
-
 
 const SHIELD_CONFIG = {
   NEON_COLOR: new Color3(0.1, 1.0, 0.1),
   ROTATION_SPEED_Y: 0.001,
   ROTATION_SPEED_Z: 0.0005,
   STROKE_WIDTH: 0.08,
-  TUBE_TESSELLATION: 8,
-  SPHERE_SEGMENTS: 8,
-  ARC_SEGMENTS: 32,
+  TUBE_TESSELLATION: 6,
+  SPHERE_SEGMENTS: 6,
+  ARC_SEGMENTS: 24,
   DEFAULT_GLYPH_COUNT: 50,
   DEFAULT_RADIUS: 20,
   RADIUS_VARIATION: 4.0,
@@ -37,6 +33,7 @@ const SHIELD_CONFIG = {
   MAX_LINE_LENGTH: 4.0,
   MIN_GLYPH_SCALE: 0.2,
   MAX_GLYPH_SCALE: 0.8,
+  ENABLE_INSTANCING: true,
 } as const;
 
 @Injectable({
@@ -48,9 +45,13 @@ export class ShieldSystemService {
   private scene: Scene | null = null;
   private isAnimating: boolean = false;
 
+  private baseDotMesh: Mesh | null = null;
+  private baseRingMeshes: Map<number, Mesh> = new Map();
+  private baseFullRingMesh: Mesh | null = null;
+
   constructor() {}
 
-    public createShieldSystem(
+  public createShieldSystem(
     scene: Scene,
     glyphCount: number = SHIELD_CONFIG.DEFAULT_GLYPH_COUNT,
     radius: number = SHIELD_CONFIG.DEFAULT_RADIUS
@@ -58,12 +59,12 @@ export class ShieldSystemService {
     this.scene = scene;
 
     this.createNeonMaterial(scene);
+    this.createBaseMeshes(scene);
 
     this.shieldRoot = this.generateSpaceHUD(glyphCount, radius, scene);
 
     return this.shieldRoot;
   }
-
 
   public startAnimation(): void {
     if (!this.scene || !this.shieldRoot || this.isAnimating) return;
@@ -77,11 +78,9 @@ export class ShieldSystemService {
     });
   }
 
-
   public stopAnimation(): void {
     this.isAnimating = false;
   }
-
 
   public dispose(): void {
     this.stopAnimation();
@@ -89,6 +88,19 @@ export class ShieldSystemService {
     if (this.shieldRoot) {
       this.shieldRoot.dispose();
       this.shieldRoot = null;
+    }
+
+    this.baseRingMeshes.forEach(mesh => mesh.dispose());
+    this.baseRingMeshes.clear();
+
+    if (this.baseDotMesh) {
+      this.baseDotMesh.dispose();
+      this.baseDotMesh = null;
+    }
+
+    if (this.baseFullRingMesh) {
+      this.baseFullRingMesh.dispose();
+      this.baseFullRingMesh = null;
     }
 
     if (this.neonMaterial) {
@@ -99,7 +111,6 @@ export class ShieldSystemService {
     this.scene = null;
   }
 
-
   public updateRadius(newRadius: number): void {
     if (!this.scene || !this.shieldRoot) return;
 
@@ -109,9 +120,6 @@ export class ShieldSystemService {
     this.startAnimation();
   }
 
-  // ==================== PRIVATE METHODS ====================
-
-
   private createNeonMaterial(scene: Scene): void {
     this.neonMaterial = new StandardMaterial("neonMat", scene);
     this.neonMaterial.emissiveColor = SHIELD_CONFIG.NEON_COLOR;
@@ -120,6 +128,48 @@ export class ShieldSystemService {
     this.neonMaterial.alpha = 1;
   }
 
+  private createBaseMeshes(scene: Scene): void {
+    this.baseDotMesh = MeshBuilder.CreateSphere("baseDot", {
+      diameter: 1,
+      segments: SHIELD_CONFIG.SPHERE_SEGMENTS
+    }, scene);
+    this.baseDotMesh.isVisible = false;
+    if (this.neonMaterial) {
+      this.baseDotMesh.material = this.neonMaterial;
+    }
+
+    this.baseFullRingMesh = this.createBaseRingMesh(
+      SHIELD_CONFIG.CONNECTOR_BASE_RADIUS,
+      scene
+    );
+
+    const ringRadii = [
+      SHIELD_CONFIG.BASE_RING_RADIUS,
+      SHIELD_CONFIG.BASE_RING_RADIUS + SHIELD_CONFIG.RING_SPACING,
+      SHIELD_CONFIG.BASE_RING_RADIUS + (SHIELD_CONFIG.RING_SPACING * 2)
+    ];
+
+    ringRadii.forEach(radius => {
+      const ring = this.createBaseRingMesh(radius, scene);
+      this.baseRingMeshes.set(radius, ring);
+    });
+  }
+
+  private createBaseRingMesh(radius: number, scene: Scene): Mesh {
+    const points = this.createArcPoints(radius, 0, Math.PI * 2, SHIELD_CONFIG.ARC_SEGMENTS);
+    const ring = MeshBuilder.CreateTube(`baseRing_${radius}`, {
+      path: points,
+      radius: SHIELD_CONFIG.STROKE_WIDTH / 2,
+      tessellation: SHIELD_CONFIG.TUBE_TESSELLATION,
+      cap: Mesh.CAP_ALL,
+      updatable: false
+    }, scene);
+    ring.isVisible = false;
+    if (this.neonMaterial) {
+      ring.material = this.neonMaterial;
+    }
+    return ring;
+  }
 
   private createArcPoints(
     radius: number,
@@ -134,7 +184,6 @@ export class ShieldSystemService {
     }
     return points;
   }
-
 
   private createStrokeMesh(points: Vector3[], width: number, scene: Scene): Mesh {
     const tube = MeshBuilder.CreateTube("stroke", {
@@ -152,8 +201,17 @@ export class ShieldSystemService {
     return tube;
   }
 
+  private createDot(scale: number, scene: Scene): Mesh | InstancedMesh {
+    if (!this.baseDotMesh || !SHIELD_CONFIG.ENABLE_INSTANCING) {
+      return this.createOriginalDot(scale, scene);
+    }
 
-  private createDot(scale: number, scene: Scene): Mesh {
+    const instance = this.baseDotMesh.createInstance("dotInstance");
+    instance.scaling = new Vector3(scale, scale, 0.1);
+    return instance;
+  }
+
+  private createOriginalDot(scale: number, scene: Scene): Mesh {
     const dot = MeshBuilder.CreateSphere("dot", {
       diameter: 1,
       segments: SHIELD_CONFIG.SPHERE_SEGMENTS
@@ -168,7 +226,6 @@ export class ShieldSystemService {
     return dot;
   }
 
-
   private createConcentricGlyph(scene: Scene): TransformNode {
     const container = new TransformNode("glyphConcentric", scene);
 
@@ -180,38 +237,65 @@ export class ShieldSystemService {
     const ringCount = Math.floor(Math.random() * SHIELD_CONFIG.MAX_RING_COUNT) + SHIELD_CONFIG.MIN_RING_COUNT;
     for (let i = 0; i < ringCount; i++) {
       const radius = SHIELD_CONFIG.BASE_RING_RADIUS + (i * SHIELD_CONFIG.RING_SPACING);
-      const width = SHIELD_CONFIG.STROKE_WIDTH;
+      const baseMesh = this.baseRingMeshes.get(radius);
 
-      let start = 0;
-      let end = Math.PI * 2;
+      if (baseMesh && SHIELD_CONFIG.ENABLE_INSTANCING) {
+        const hasGap = Math.random() > 0.4;
 
-      if (Math.random() > 0.4) {
-        start = Math.random() * Math.PI * 2;
-        const gap = Math.random() * 1.5 + 0.5;
-        end = start + (Math.PI * 2) - gap;
+        if (hasGap) {
+          const ringInstance = this.createRingWithGap(radius, scene);
+          ringInstance.parent = container;
+          ringInstance.rotation.z = Math.random() * Math.PI * 2;
+        } else {
+          const ringInstance = baseMesh.createInstance("ringInstance");
+          ringInstance.parent = container;
+          ringInstance.rotation.z = Math.random() * Math.PI * 2;
+        }
+      } else {
+        let start = 0;
+        let end = Math.PI * 2;
+
+        if (Math.random() > 0.4) {
+          start = Math.random() * Math.PI * 2;
+          const gap = Math.random() * 1.5 + 0.5;
+          end = start + (Math.PI * 2) - gap;
+        }
+
+        const points = this.createArcPoints(radius, start, end, SHIELD_CONFIG.ARC_SEGMENTS);
+        const ring = this.createStrokeMesh(points, SHIELD_CONFIG.STROKE_WIDTH, scene);
+        ring.parent = container;
+        ring.rotation.z = Math.random() * Math.PI * 2;
       }
-
-      const points = this.createArcPoints(radius, start, end, SHIELD_CONFIG.ARC_SEGMENTS);
-      const ring = this.createStrokeMesh(points, width, scene);
-      ring.parent = container;
-      ring.rotation.z = Math.random() * Math.PI * 2;
     }
 
     return container;
   }
 
+  private createRingWithGap(radius: number, scene: Scene): Mesh {
+    const start = Math.random() * Math.PI * 2;
+    const gap = Math.random() * 1.5 + 0.5;
+    const end = start + (Math.PI * 2) - gap;
+
+    const points = this.createArcPoints(radius, start, end, SHIELD_CONFIG.ARC_SEGMENTS);
+    return this.createStrokeMesh(points, SHIELD_CONFIG.STROKE_WIDTH, scene);
+  }
 
   private createConnectorGlyph(scene: Scene): TransformNode {
     const container = new TransformNode("glyphConnector", scene);
 
-    const points = this.createArcPoints(
-      SHIELD_CONFIG.CONNECTOR_BASE_RADIUS,
-      0,
-      Math.PI * 2,
-      SHIELD_CONFIG.ARC_SEGMENTS
-    );
-    const ring = this.createStrokeMesh(points, SHIELD_CONFIG.STROKE_WIDTH, scene);
-    ring.parent = container;
+    if (this.baseFullRingMesh && SHIELD_CONFIG.ENABLE_INSTANCING) {
+      const ringInstance = this.baseFullRingMesh.createInstance("connectorRingInstance");
+      ringInstance.parent = container;
+    } else {
+      const points = this.createArcPoints(
+        SHIELD_CONFIG.CONNECTOR_BASE_RADIUS,
+        0,
+        Math.PI * 2,
+        SHIELD_CONFIG.ARC_SEGMENTS
+      );
+      const ring = this.createStrokeMesh(points, SHIELD_CONFIG.STROKE_WIDTH, scene);
+      ring.parent = container;
+    }
 
     const lineLength = SHIELD_CONFIG.MIN_LINE_LENGTH +
                       Math.random() * (SHIELD_CONFIG.MAX_LINE_LENGTH - SHIELD_CONFIG.MIN_LINE_LENGTH);
@@ -263,8 +347,6 @@ export class ShieldSystemService {
 
     return rootNode;
   }
-
-  // ==================== GETTERS ====================
 
   public get shieldRootNode(): TransformNode | null {
     return this.shieldRoot;
