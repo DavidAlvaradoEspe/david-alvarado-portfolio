@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { I18nService } from '@app/i18n';
-import { TranslateDirective } from '@app/i18n';
 import {environment} from '@env/environment';
+import {TranslateDirective} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-language-select',

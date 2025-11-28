@@ -30,7 +30,8 @@ import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 import { BabylonSceneService } from '@app/@core/services';
 import { SplashScreenService } from '@app/shared/components/splash-screen/splash-screen-service';
 import { PuzzleStore } from '@app/@core/store/puzzle.store';
-import { TranslateDirective } from '@app/i18n';
+import {TranslateDirective} from '@ngx-translate/core';
+
 
 type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 

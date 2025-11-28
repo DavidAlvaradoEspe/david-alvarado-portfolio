@@ -3,7 +3,7 @@ import { BabylonSceneService, ShieldSystemService, NebulaBackgroundService } fro
 import { PuzzleStore } from '@app/@core/store/puzzle.store';
 import { SplashScreenService } from '@app/shared/components/splash-screen/splash-screen-service';
 import { CV_DATA, CVSection } from '@app/shared/mockedData/data';
-import {LanguageSelectorComponent, TranslateDirective} from '@app/i18n';
+import {LanguageSelectorComponent} from '@app/i18n';
 
 // --- BABYLON CORE ---
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
@@ -31,6 +31,7 @@ import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
 import { MeshParticleEmitter } from '@babylonjs/core/Particles/EmitterTypes/meshParticleEmitter';
 import "@babylonjs/core/Particles/particleSystemComponent";
 import {isMobileDevice} from '@app/@core/utils';
+import {TranslateDirective} from '@ngx-translate/core';
 @Component({
   selector: 'app-holographic-room',
   templateUrl: './holographic-room.html',
