@@ -19,5 +19,11 @@
   "Error loading holographic interface": "Error loading holographic interface",
   "Unlocking Map": "Unlocking Map",
   "LAUNCH": "LAUNCH",
-  "Go": "Go"
+  "Go": "Go",
+  "Visit Site ↗": "Visit Site ↗",
+  "LANGUAGES": "LANGUAGES",
+  "FRAMEWORKS AND LIBRARIES" : "FRAMEWORKS AND LIBRARIES",
+  "DATABASES" : "DATABASES",
+  "TOOLS AND TECH": "TOOLS AND TECH",
+  "DEVOPS": "DEVOPS"
 }

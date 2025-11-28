@@ -16,6 +16,7 @@ const languageKey = 'language';
 export class I18nService {
   defaultLanguage!: string;
   supportedLanguages!: string[];
+  reloadOnLanguageChange: boolean = false; // New property for reload functionality
 
   private _langChangeSubscription!: Subscription;
   private readonly _languageSubject: BehaviorSubject<string>;
@@ -96,7 +97,27 @@ export class I18nService {
     // Warning: this subscription will always be alive for the app's lifetime
     this._langChangeSubscription = this._translateService.onLangChange.subscribe((event: LangChangeEvent) => {
       localStorage.setItem(languageKey, event.lang);
+
+      if (this.reloadOnLanguageChange) {
+        window.location.reload();
+      }
     });
+  }
+
+  /**
+   * Enable automatic page reload when language changes.
+   * Useful for components with complex data structures that need full reinitialization.
+   */
+  enableReloadOnLanguageChange(): void {
+    this.reloadOnLanguageChange = true;
+  }
+
+  /**
+   * Disable automatic page reload when language changes.
+   * Returns to normal behavior where only observables are updated.
+   */
+  disableReloadOnLanguageChange(): void {
+    this.reloadOnLanguageChange = false;
   }
 
   /**

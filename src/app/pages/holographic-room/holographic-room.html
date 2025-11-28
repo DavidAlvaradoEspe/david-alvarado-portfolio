@@ -3,7 +3,9 @@
 
   @if(!puzzleStore.isLoading()){
     <div class="hud-overlay">
+<!--
       <div class="status-bar" [translate]="'System Online'"></div>
+-->
       <div class="language-selector-wrapper">
         <app-language-selector></app-language-selector>
       </div>
@@ -108,7 +110,7 @@
 
                     <div class="project-links">
                       @if(project.link) {
-                        <a [href]="project.link" target="_blank" class="link-btn">Visit Site ↗</a>
+                        <a [href]="project.link" target="_blank" class="link-btn" [translate]="'Visit Site ↗'"></a>
                       }
                     </div>
                   </div>
@@ -122,7 +124,7 @@
             <div class="skills-layout">
 
               <div class="core-skills">
-                <h4 class="section-label">CORE CAPABILITIES</h4>
+                <h4 class="section-label">{{ section.label }}</h4>
                 @for (skill of section.content.core; track skill.name) {
                   <div class="skill-bar-container">
                     <div class="skill-info">
@@ -138,14 +140,35 @@
 
               <div class="secondary-skills">
                 <div class="skill-group">
-                  <h4 class="section-label">BACKEND & DATA</h4>
+                  <h4 class="section-label" [translate]="'LANGUAGES'"></h4>
                   <div class="tags">
-                    @for (item of section.content.backend; track item) { <span class="tag">{{ item }}</span> }
+                    @for (item of section.content.languages; track item) { <span class="tag">{{ item }}</span> }
                   </div>
                 </div>
 
                 <div class="skill-group">
-                  <h4 class="section-label">INFRA & DEVOPS</h4>
+                  <h4 class="section-label" [translate]="'FRAMEWORKS AND LIBRARIES'"></h4>
+                  <div class="tags">
+                    @for (item of section.content.frameworks; track item) { <span class="tag">{{ item }}</span> }
+                  </div>
+                </div>
+
+                <div class="skill-group">
+                  <h4 class="section-label" [translate]="'DATABASES'">BACKEND & DATA</h4>
+                  <div class="tags">
+                    @for (item of section.content.data; track item) { <span class="tag">{{ item }}</span> }
+                  </div>
+                </div>
+
+                <div class="skill-group">
+                  <h4 class="section-label" [translate]="'TOOLS AND TECH'"></h4>
+                  <div class="tags">
+                    @for (item of section.content.tooling; track item) { <span class="tag">{{ item }}</span> }
+                  </div>
+                </div>
+
+                <div class="skill-group">
+                  <h4 class="section-label" [translate]="'DEVOPS'"></h4>
                   <div class="tags">
                     @for (item of section.content.devops; track item) { <span class="tag">{{ item }}</span> }
                   </div>

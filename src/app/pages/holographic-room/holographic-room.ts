@@ -2,8 +2,9 @@ import { Component, ElementRef, NgZone, OnDestroy, OnInit, signal, ViewChild } f
 import { BabylonSceneService, ShieldSystemService, NebulaBackgroundService } from '@app/@core/services';
 import { PuzzleStore } from '@app/@core/store/puzzle.store';
 import { SplashScreenService } from '@app/shared/components/splash-screen/splash-screen-service';
-import { CV_DATA, CVSection } from '@app/shared/mockedData/data';
-import {LanguageSelectorComponent} from '@app/i18n';
+import { CVSection, DataProviderService } from '@app/shared/mockedData';
+import { LanguageSelectorComponent } from '@app/i18n';
+import { I18nService } from '@app/i18n';
 
 // --- BABYLON CORE ---
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
@@ -47,6 +48,8 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
   private isTransitioning = false;
   private floatingObserver: any = null;
   private isMobile = isMobileDevice();
+  private cvData: CVSection[] = [];
+
    constructor(
     private babylonService: BabylonSceneService,
     private ngZone: NgZone,
@@ -54,9 +57,15 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
     private splashService: SplashScreenService,
     private shieldService: ShieldSystemService,
     private nebulaService: NebulaBackgroundService,
+    private dataProvider: DataProviderService,
+    private i18nService: I18nService
   ) {}
 
   ngOnInit() {
+    this.i18nService.enableReloadOnLanguageChange();
+
+    this.cvData = this.dataProvider.getCVData();
+
     this.splashService.updateImage('assets/icons/opened-map.png');
     this.splashService.autoHide = false;
     this.splashService.buttonText = "Go";
@@ -344,7 +353,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
 
   private spawnCVConstellations() {
     const radius = 14;
-    const sections = CV_DATA;
+    const sections = this.cvData;
     const total = sections.length;
 
     sections.forEach((section: any, index: number) => {
@@ -694,7 +703,12 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       this.babylonService.currentScene.onBeforeRenderObservable.remove(this.floatingObserver);
       this.floatingObserver = null;
     }
+    this.i18nService.disableReloadOnLanguageChange();
+    this.dispose();
+  }
 
+
+  dispose() {
     this.nebulaService.dispose();
     this.shieldService.dispose();
     this.babylonService.dispose();

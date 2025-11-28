@@ -19,9 +19,9 @@ export const CV_DATA: CVSection[] = [
       role: "SWE Front-End Tech Lead",
       location: "Ecuador",
       bio: [
-        "I blend technical precision with artistic creativity. With over 5 years of experience, I specialize in designing and implementing high-performance architectures using modern FrontEnd and BackEnd technologies and frameworks, carefully selecting the architecture to match each project's specific requirements. My attention to detail ensures that every pixel and every line of code serves a purpose.",
-        "Beyond the screen, I am a passionate singer and content creator. On my YouTube channel, I translate and perform songs, applying the same dedication to musical nuances as I do to software quality.",
-        "I value autonomy and trust. I'm a responsible leader who fosters good communication and a positive environment, believing that great software is built by happy, self-managed teams."
+        "I blend technical precision with artistic creativity. With over 5 years of software development experience, I specialize in designing and implementing scalable architectures using modern FrontEnd and BackEnd technologies and frameworks, carefully selecting the best architecture based on each project's specific requirements.",
+        "Beyond the screen, I enjoy singing and creating content. On my YouTube channel, I translate and perform songs, applying the same dedication to my musical production as I do to software quality.",
+        "I value autonomy and trust. I'm a responsible leader who fosters good communication and a positive environment, believing that quality software is built by happy, self-managed teams."
       ],
       socials: {
         youtube: "https://www.youtube.com/@D4veCovers",
@@ -42,12 +42,12 @@ export const CV_DATA: CVSection[] = [
         company: "StickerStoke S.A.S",
         role: "Front-End Tech Lead",
         period: "2021 - 2025",
-        desc: "Led the technological vision for a real-time visual customization platform.",
+        desc: "Led the technological vision for a real-time vehicle customization platform.",
         highlights: [
-          "Architected a patent-pending 3D vector editor using Babylon.js & Angular.",
-          "Optimized rendering performance, reducing load times by 40%.",
+          "Collaborated in the architecture, design and development of a vector editor with 3D visualization, contributing to the development of a patentable algorithm using Babylon.js & Angular.",
+          "Developed and implemented internal tools that improved work organization, reduced development times and increased team productivity.",
           "Managed AWS/Docker pipelines for CI/CD efficiency.",
-          "Mentored the frontend team, establishing SOLID principles."
+          "Implemented a complete e-commerce ecosystem: marketplace, shopping cart, payments, billing and administrative panel."
         ]
       },
       {
@@ -57,47 +57,47 @@ export const CV_DATA: CVSection[] = [
         desc: "Directed banking operations digitalization.",
         highlights: [
           "Led a squad of 4 developers using Agile/Scrum methodologies.",
-          "Modernized legacy banking interfaces improving UX for internal staff.",
-          "Orchestrated Java Spring Boot backend integration."
+          "Designed the architecture and developed a complete management system for banking policy handling.",
+          "Supervised JBoss deployments and backend integration coordination with Java-Spring Boot, ensuring stable and secure system operation."
         ]
       },
       {
-        company: "Freelance Developer",
+        company: "Full Stack Freelancer",
         role: "Full Stack Developer",
         period: "2019 - 2020",
-        desc: "Delivered custom web solutions and digital transformations.",
+        desc: "Developed and deployed custom web solutions and digital transformations.",
         highlights: [
           "Designed SEO-optimized websites increasing client visibility.",
           "Built custom WordPress plugins for automated workflows.",
-          "Developed full-stack apps for warehouse management using Angular/Node."
+          "Developed full-stack apps for inventory management and billing using Angular/Node."
         ]
       }
     ]
   },
   {
     id: 'projects',
-    title: 'INNOVATION HUB',
+    title: 'MY FEATURED PROJECTS',
     label: 'PROJECTS',
     type: 'projects',
     position: [0, -3, 3], // Bottom
     content: [
       {
         name: "3DCAL",
-        category: "Core Product",
-        description: "A complex e-commerce ecosystem featuring a real-time 3D vehicle configurator. Migrated from WordPress to a custom Angular/NestJS architecture.",
-        stack: ["Angular", "Babylon.js", "NestJS"],
+        category: "Core Product Development",
+        description: "Developed the main product functionalities, including a complete e-commerce ecosystem, administration site and a real-time 3D vehicle configurator and editor.",
+        stack: ["Angular", "Babylon.js", "NestJS", "Docker", "AWS", "D3.js", "Electron.js", "Astro"],
         link: "https://3dcal.com/"
       },
       {
         name: "Custom WP Plugins",
         category: "Development Tools",
-        description: "Built a real-time Shipping Cost Calculator for Ecuadorian couriers and an Auto-Image Optimizer API integration to preserve quality while reducing file size.",
-        stack: ["PHP", "WordPress API", "REST"]
+        description: "Developed a real-time Shipping Cost Calculator plugin for Ecuadorian couriers, integrated with WooCommerce store.",
+        stack: ["PHP", "WordPress API", "REST", "WooCommerce"]
       },
       {
         name: "AMPDC",
         category: "Volunteer Work",
-        description: "Maintained the site, updated sections/color palettes, and integrated payments. Implemented analytics (Clarify, GA, FB Pixel), published articles, and collaborated on a custom appointment scheduling plugin.",
+        description: "Volunteered for UN to maintain the site, updated sections/color palettes, and integrated payments. Implemented analytics (Clarify, GA, FB Pixel) and published articles.",
         stack: ["WordPress", "Analytics", "Plugins"],
         link: "https://psicologiaydesarrollocomunitario.com/"
       },
@@ -112,22 +112,34 @@ export const CV_DATA: CVSection[] = [
   },
   {
     id: 'skills',
-    title: 'TECH ARSENAL',
+    title: 'TECH SKILLS',
     label: 'SKILLS',
     type: 'skills',
     position: [4, 0, 2], // Right
     content: {
       core: [
         { name: "Angular & TS", level: 98 },
-        { name: "Babylon.js / Three.js 3D", level: 90 },
+        { name: "Babylon.js", level: 96 },
+        { name: "NestJs", level: 90 },
+        { name: "Three.js", level: 93 },
         { name: "Vue.js", level: 80 },
-        { name: "React / Astro", level: 85 }
+        { name: "React", level: 70 },
+        { name: "Astro", level: 85 }
       ],
-      backend: [
-        "Node.js", "NestJS", "PostgreSQL", "PHP / WordPress", "Electron.js"
+      languages: [
+        "Java", "C#", "Python", "Javascript", "HTML/CSS", "TypeScript", "PHP"
+      ],
+      frameworks: [
+        "Angular", "Vue 3", "Astro", "Electron.js", "Microservices", "REST API", "NodeJs", "NestJS", "Express.js"
+      ],
+      data: [
+        "PostgreSQL", "MongoDB", "MySQL", "SQLite"
+      ],
+      tooling: [
+        "Puppeteer", "Jira", "Github", "Slack", "Postman", "Figma", "Mongo Express"
       ],
       devops: [
-        "Docker", "AWS (ECS/S3)", "Azure", "Git Flow", "CI/CD"
+        "Docker", "AWS", "Azure", "Git Flow", "GitHub Actions"
       ]
     }
   }
