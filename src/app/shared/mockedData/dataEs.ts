@@ -28,7 +28,7 @@ export const CV_DATA_ES: CVSection[] = [
         linkedin: "https://linkedin.com/in/david-alvarado-dev/",
         email: "frealvaradoc@gmail.com"
       },
-      softSkills: ["Orientado al Detalle", "Buena Comunicación", "Autónomo", "Equipo"]
+      softSkills: ["Orientado al Detalle", "Buena Comunicación", "Autónomo", "Colaborativo"]
     }
   },
   {
