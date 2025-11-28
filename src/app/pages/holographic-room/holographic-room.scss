@@ -103,13 +103,14 @@
       background: none;
       border: 1px solid rgba(0, 255, 255, 0.3);
       color: #00ffff;
-      width: 32px; /* Kept 32px */
-      height: 32px;
+      width: 1.8rem;
+      height: 100%;
+      aspect-ratio: 1/1;
       border-radius: 50%;
       cursor: pointer;
       font-size: 1.2rem;
       transition: all 0.2s;
-      display: flex; /* Added for centering icon if span is used */
+      display: flex;
       align-items: center;
       justify-content: center;
 

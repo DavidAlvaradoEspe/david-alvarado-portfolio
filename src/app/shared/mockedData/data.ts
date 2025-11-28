@@ -16,7 +16,7 @@ export const CV_DATA: CVSection[] = [
     position: [0, 2, 0],
     content: {
       avatar: "assets/images/david_tp.jpg",
-      role: "SWE Front-End Tech Lead",
+      role: "Full-Stack Developer (Front-end Focused)",
       location: "Ecuador",
       bio: [
         "I blend technical precision with artistic creativity. With over 5 years of software development experience, I specialize in designing and implementing scalable architectures using modern FrontEnd and BackEnd technologies and frameworks, carefully selecting the best architecture based on each project's specific requirements.",

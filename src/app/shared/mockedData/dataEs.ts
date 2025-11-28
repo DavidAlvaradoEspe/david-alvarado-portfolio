@@ -16,7 +16,7 @@ export const CV_DATA_ES: CVSection[] = [
     position: [0, 2, 0],
     content: {
       avatar: "assets/images/david_tp.jpg",
-      role: "SWE Líder Técnico Front-End",
+      role: "Full-Stack Developer (Front-end Focused)",
       location: "Ecuador",
       bio: [
         "Combino precisión técnica con creatividad artística. Cuento con más de 5 años de experiencia en desarrollo de software, me especializo en diseñar e implementar arquitecturas escalables utilizando tecnologías y frameworks modernos de FrontEnd y BackEnd, seleccionando cuidadosamente la mejor arquitectura en base a los requisitos específicos de cada proyecto.",
