@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap');
+
+.language-select-container {
+  width: 100%;
+  height: 100vh;
+  background: rgba(199, 136, 53, 0.05);  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.content-wrapper {
+  background: rgba(2, 2, 5, 0.85);
+  border: 2px solid var(--color-gold);
+  border-radius: 24px;
+  padding: 1rem;
+  width: 100%;
+  max-width:600px;
+  box-shadow: 0 0 20px rgba(199, 136, 53, 0.5);
+}
+
+.title-container {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.treasure-title {
+  font-family: 'TreasurePlanet', 'Cinzel', serif;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  color: var(--color-gold);
+  margin: 0;
+  font-weight: 700;
+}
+
+.title-word {
+  display: inline;
+  margin-right: 0.3em;
+}
+
+.title-underline {
+  display: none;
+}
+
+.language-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 2rem;
+}
+
+.lang-card {
+  background: rgba(199, 136, 53, 0.05);
+  border: none;
+  border-bottom: 1px solid rgba(199, 136, 53, 0.2);
+  padding: 1.25rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgb(255 255 255 / 6%);
+  }
+
+  &.selected {
+    background: rgba(229, 192, 123, 0.2);
+    border-bottom: 1px solid rgba(199, 136, 53, 0.4);
+  }
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.flag-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+
+.lang-name {
+  font-family: 'TreasurePlanet', 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  flex: 1;
+}
+
+.selection-indicator {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.check-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--color-gold);
+}
+
+.confirm-btn {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid var(--color-gold);
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-family: 'TreasurePlanet', 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+
+  &:hover {
+    background: rgba(212, 175, 55, 0.25);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btn-text {
+  white-space: nowrap;
+}
+
+.arrow-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.stars-bg,
+.compass-decoration {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+  }
+
+  .title-container {
+    margin-bottom: 1.5rem;
+  }
+
+  .treasure-title {
+    font-size: 1.5rem;
+  }
+
+  .lang-card {
+    padding: 1rem 0.5rem;
+  }
+
+  .flag-icon {
+    font-size: 2rem;
+  }
+
+  .lang-name {
+    font-size: 1rem;
+  }
+
+  .confirm-btn {
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+}
+

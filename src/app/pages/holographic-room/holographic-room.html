@@ -3,7 +3,10 @@
 
   @if(!puzzleStore.isLoading()){
     <div class="hud-overlay">
-      <div class="status-bar">SYSTEM: ONLINE</div>
+      <div class="status-bar" [translate]="'System Online'"></div>
+      <div class="language-selector-wrapper">
+        <app-language-selector></app-language-selector>
+      </div>
 <!--
       <div class="status-bar right">USER: GUEST</div>
 -->

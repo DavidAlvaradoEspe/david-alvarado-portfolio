@@ -1,0 +1,21 @@
+<div class="language-selector" (click)="$event.stopPropagation(); $event.preventDefault()">
+  <button class="lang-toggle" (click)="toggleDropdown()" [class.active]="isDropdownOpen">
+    <span class="lang-code">{{ currentLanguage }}</span>
+    <span class="globe-icon">🌐</span>
+  </button>
+
+  @if (isDropdownOpen) {
+    <div class="lang-dropdown">
+      @for (language of languages; track language) {
+        <button
+          class="lang-option"
+          [class.selected]="getLanguageCode(language) === currentLanguage"
+          (click)="setLanguage(language)">
+          {{ getLanguageCode(language) }}
+        </button>
+      } @empty {
+        <div class="no-languages">No languages available</div>
+      }
+    </div>
+  }
+</div>

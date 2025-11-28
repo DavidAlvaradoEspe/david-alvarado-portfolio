@@ -1,8 +1,9 @@
 import { Component, ElementRef, NgZone, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { BabylonSceneService, ShieldSystemService, NebulaBackgroundService } from '../../@core/services';
-import { PuzzleStore } from '../../@core/store/puzzle.store';
-import { SplashScreenService } from '../../shared/components/splash-screen/splash-screen-service';
-import { CV_DATA, CVSection } from '../../shared/mockedData/data';
+import { BabylonSceneService, ShieldSystemService, NebulaBackgroundService } from '@app/@core/services';
+import { PuzzleStore } from '@app/@core/store/puzzle.store';
+import { SplashScreenService } from '@app/shared/components/splash-screen/splash-screen-service';
+import { CV_DATA, CVSection } from '@app/shared/mockedData/data';
+import {LanguageSelectorComponent, TranslateDirective} from '@app/i18n';
 
 // --- BABYLON CORE ---
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
@@ -29,11 +30,12 @@ import { CubicEase, EasingFunction } from '@babylonjs/core/Animations/easing';
 import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
 import { MeshParticleEmitter } from '@babylonjs/core/Particles/EmitterTypes/meshParticleEmitter';
 import "@babylonjs/core/Particles/particleSystemComponent";
-import {isMobileDevice} from '../../@core/utils';
+import {isMobileDevice} from '@app/@core/utils';
 @Component({
   selector: 'app-holographic-room',
   templateUrl: './holographic-room.html',
   styleUrl: './holographic-room.scss',
+  imports: [LanguageSelectorComponent, TranslateDirective],
 })
 export class HolographicRoomComponent implements OnInit, OnDestroy {
   @ViewChild('renderCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;

@@ -27,9 +27,10 @@ import { Scene } from '@babylonjs/core/scene';
 import { AssetContainer } from '@babylonjs/core/assetContainer';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 
-import { BabylonSceneService } from '../../@core/services';
-import { SplashScreenService } from '../../shared/components/splash-screen/splash-screen-service';
-import { PuzzleStore } from '../../@core/store/puzzle.store';
+import { BabylonSceneService } from '@app/@core/services';
+import { SplashScreenService } from '@app/shared/components/splash-screen/splash-screen-service';
+import { PuzzleStore } from '@app/@core/store/puzzle.store';
+import { TranslateDirective } from '@app/i18n';
 
 type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 
@@ -81,7 +82,7 @@ const ANIMATION_CONFIG = {
   templateUrl: './map-puzzle.html',
   styleUrls: ['./map-puzzle.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, TranslateDirective]
 })
 export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('renderCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;

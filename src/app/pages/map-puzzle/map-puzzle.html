@@ -1,9 +1,10 @@
 <div class="closed-map-container">
   <canvas #renderCanvas class="render-canvas"></canvas>
 
+
   @if(!puzzleStore.isUnlocked() && !puzzleStore.isLoading()){
     <div class="puzzle-hints">
-      <h1 class="hint-title">UNLOCK MAP</h1>
+      <h1 class="hint-title" [translate]="'Unlock Map'"></h1>
       <div class="sequence-display">
         @for (direction of SEQUENCE_DISPLAY; track direction ; let i = $index) {
           <span
@@ -46,9 +47,9 @@
 
       <div class="guide-text">
         @switch(puzzleStep()) {
-          @case(0) { SWIPE RIGHT }
-          @case(1) { SWIPE DOWN }
-          @case(2) { SWIPE LEFT }
+          @case(0) { <span [translate]="'Swipe Right'"></span> }
+          @case(1) { <span [translate]="'Swipe Down'"></span> }
+          @case(2) { <span [translate]="'Swipe Left'"></span> }
         }
       </div>
     </div>

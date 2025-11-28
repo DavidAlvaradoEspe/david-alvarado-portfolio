@@ -3,24 +3,6 @@ import { CanActivateFn, Router } from '@angular/router';
 import { PuzzleStore } from '../store/puzzle.store';
 
 /**
- * Guard for root route - redirects based on puzzle state
- */
-export const rootRedirectGuard: CanActivateFn = () => {
-  const store = inject(PuzzleStore);
-  const router = inject(Router);
-
-  // Redirect to holographic-room if puzzle is already unlocked
-  if (store.isUnlocked()) {
-    router.navigate(['/holographic-room']);
-    return false;
-  }
-
-  // Otherwise redirect to map-puzzle
-  router.navigate(['/treasure-map']);
-  return false;
-};
-
-/**
  * Guard to prevent access to holographic-room if puzzle is not unlocked
  */
 export const puzzleUnlockedGuard: CanActivateFn = () => {
@@ -31,8 +13,7 @@ export const puzzleUnlockedGuard: CanActivateFn = () => {
     return true;
   }
 
-  // Redirect to map-puzzle if not unlocked
-  router.navigate(['/map-puzzle']);
+  router.navigate(['/select-language']).catch();
   return false;
 };
 
@@ -47,8 +28,7 @@ export const puzzleLockedGuard: CanActivateFn = () => {
     return true;
   }
 
-  // Redirect to holographic-room if already unlocked
-  router.navigate(['/holographic-room']);
+  router.navigate(['/holographic-room']).catch();
   return false;
 };
 

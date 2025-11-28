@@ -15,6 +15,7 @@
   &:active { cursor: grabbing; }
 }
 
+
 /* --- Puzzle Hints (Top) --- */
 .puzzle-hints {
   position: absolute;
@@ -106,6 +107,7 @@
   letter-spacing: 2px;
   text-shadow: 0 0 10px rgba(199, 136, 53, 0.8);
   animation: textFade 2s infinite;
+  text-align: center;
 }
 
 .hand-container {

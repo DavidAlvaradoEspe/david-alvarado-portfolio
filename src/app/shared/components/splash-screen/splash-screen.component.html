@@ -24,7 +24,7 @@
       <div class="action-placeholder">
         @if (splashService.showButton$ | async) {
           <button class="action-btn" (click)="onContinue()">
-            {{ splashService.buttonText }}
+            {{ splashService.buttonText$ | async }}
           </button>
 
         } @else {

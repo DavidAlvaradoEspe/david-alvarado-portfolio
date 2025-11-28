@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, concatMap, delay, of, Subject, tap} from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +9,7 @@ export class SplashScreenService {
   private _show$ = new BehaviorSubject<boolean>(false);
   public readonly show$ = this._show$.asObservable();
 
-  private _message$ = new BehaviorSubject<string>('Engaging Mechanism');
+  private _message$ = new BehaviorSubject<string>('');
   public readonly message$ = this._message$.asObservable();
 
   private _image$ = new BehaviorSubject<string>('assets/icons/map-icon.png');
@@ -17,7 +18,15 @@ export class SplashScreenService {
   private _showButton$ = new BehaviorSubject<boolean>(false);
   public readonly showButton$ = this._showButton$.asObservable();
 
-  public buttonText = 'LAUNCH';
+  private _buttonText$ = new BehaviorSubject<string>('');
+  public readonly buttonText$ = this._buttonText$.asObservable();
+
+  public get buttonText(): string {
+    return this._buttonText$.value;
+  }
+  public set buttonText(value: string) {
+    this.updateButtonText(value);
+  }
 
   public isTransparent = false;
   public autoHide = true;
@@ -32,20 +41,38 @@ export class SplashScreenService {
 
 
 
-  constructor() {
+  constructor(private translateService: TranslateService) {
+    this.initializeTranslations();
+
+    this.translateService.onLangChange.subscribe(() => {
+      this.initializeTranslations();
+    });
+
     this._messageRequest$.pipe(
       concatMap(msg => {
         this._textVisible$.next(false);
         return of(msg).pipe(
           delay(300),
           tap(newMsg => {
-            this._message$.next(newMsg);
+            this.translateService.get(newMsg).subscribe(translatedMsg => {
+              this._message$.next(translatedMsg);
+            });
             this._textVisible$.next(true);
           }),
           delay(500)
         );
       })
     ).subscribe();
+  }
+
+  private initializeTranslations(): void {
+    this.translateService.get('Engaging Mechanism').subscribe(translation => {
+      this._message$.next(translation);
+    });
+
+    this.translateService.get('LAUNCH').subscribe(translation => {
+      this._buttonText$.next(translation);
+    });
   }
 
   public forceClose() {
@@ -59,6 +86,12 @@ export class SplashScreenService {
 
   public updateMessage(msg: string): void {
     this._messageRequest$.next(msg);
+  }
+
+  public updateButtonText(text: string): void {
+    this.translateService.get(text).subscribe(translation => {
+      this._buttonText$.next(translation);
+    });
   }
 
   get show(): boolean {

@@ -37,6 +37,13 @@
 
     &.right { right: 20px; text-align: right; }
   }
+
+  .language-selector-wrapper {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    pointer-events: auto;
+  }
 }
 
 /* --- MAIN HOLO PANEL --- */
@@ -474,7 +481,7 @@
       margin-bottom: 4px;
       font-size: 0.9rem;
       color: #fff;
-      .percent { color: #00ffff; font-family: 'Courier New'; }
+      .percent { color: #00ffff; }
     }
     .bar-track {
       height: 6px;

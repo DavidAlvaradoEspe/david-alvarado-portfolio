@@ -1,0 +1,46 @@
+<div class="language-select-container">
+  <!-- Animated stars background -->
+  <div class="stars-bg"></div>
+
+  <!-- Main content -->
+  <div class="content-wrapper">
+    <!-- Title with treasure planet style -->
+    <div class="title-container">
+      <h1 class="treasure-title" [translate]="'Choose Your Language'"></h1>
+      <div class="title-underline"></div>
+    </div>
+
+    <!-- Language options -->
+    <div class="language-options">
+      @for (lang of languages; track lang.code) {
+        <button
+          class="lang-card"
+          [class.selected]="selectedLanguage === lang.code"
+          (click)="selectLanguage(lang.code)">
+          <div class="card-glow"></div>
+          <div class="card-content">
+            <div class="flag-icon">{{ lang.flag }}</div>
+            <div class="lang-name">{{ lang.name }}</div>
+            @if (selectedLanguage === lang.code) {
+              <div class="selection-indicator">
+                <svg viewBox="0 0 24 24" class="check-icon">
+                  <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+              </div>
+            }
+          </div>
+        </button>
+      }
+    </div>
+
+    <!-- Confirm button -->
+    <button class="confirm-btn" (click)="confirmAndNavigate()">
+      <span class="btn-glow"></span>
+      <span class="btn-text" [translate]="'Begin Adventure'"></span>
+      <svg viewBox="0 0 24 24" class="arrow-icon">
+        <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
