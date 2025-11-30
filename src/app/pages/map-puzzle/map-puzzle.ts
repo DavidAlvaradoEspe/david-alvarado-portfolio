@@ -158,11 +158,9 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
       await this.loadOuterMapModel();
 
       this.setupInteraction();
-      if(this.babylonService.currentCamera){
-        this.babylonService.currentCamera.alpha = Math.PI;
-        this.babylonService.currentCamera.beta = 0;
-        this.babylonService.saveCameraInitialPosition();
-      }
+
+      this.initializeCameraPosition();
+
       this.finalizeSceneSetup();
     } catch (error) {
       console.error('Failed to initialize treasure map:', error);
@@ -184,6 +182,14 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
       autoElevation: false,
       disablePanning: false,
     });
+  }
+
+  private initializeCameraPosition() {
+    if(this.babylonService.currentCamera){
+      this.babylonService.currentCamera.alpha = Math.PI;
+      this.babylonService.currentCamera.beta = 0;
+      this.babylonService.saveCameraInitialPosition();
+    }
   }
 
   private async loadInnerSphere() {
