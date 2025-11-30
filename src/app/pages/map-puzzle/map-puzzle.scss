@@ -154,19 +154,6 @@
 .hand-container.anim-down {
   animation: swipeDown 2s infinite ease-in-out;
 }
-/* Use specific animation name to force reset */
-.hand-container.anim-down .touch-point {
-  animation: touchPressDown 2s infinite ease-in-out;
-}
-
-/* LEFT Animation */
-.hand-container.anim-left {
-  animation: swipeLeft 2s infinite ease-in-out;
-}
-/* Use specific animation name to force reset */
-.hand-container.anim-left .touch-point {
-  animation: touchPressLeft 2s infinite ease-in-out;
-}
 
 /* Keyframes */
 @keyframes swipeRight {
@@ -177,23 +164,6 @@
   100% { transform: translateX(3rem) rotate(0deg); opacity: 0; }
 }
 
-@keyframes swipeDown {
-  0% { transform: translateY(-1.5rem); opacity: 0; }
-  20% { transform: translateY(-1.5rem); opacity: 1; }
-  60% { transform: translateY(1.5rem); opacity: 1; }
-  80% { transform: translateY(1.5rem); opacity: 0; }
-  100% { transform: translateY(1.5rem); opacity: 0; }
-}
-
-@keyframes swipeLeft {
-  0% { transform: translateX(3rem) rotate(10deg); opacity: 0; }
-  20% { transform: translateX(3rem) rotate(10deg); opacity: 1; }
-  60% { transform: translateX(-3rem) rotate(0deg); opacity: 1; }
-  80% { transform: translateX(-3rem) rotate(0deg); opacity: 0; }
-  100% { transform: translateX(-3rem) rotate(0deg); opacity: 0; }
-}
-
-
 @keyframes touchPressRight {
   0%, 15% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
   20% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
@@ -201,19 +171,7 @@
   70%, 100% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
 }
 
-@keyframes touchPressDown {
-  0%, 15% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
-  20% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
-  60% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
-  70%, 100% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
-}
 
-@keyframes touchPressLeft {
-  0%, 15% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
-  20% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
-  60% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
-  70%, 100% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
-}
 
 @keyframes textFade {
   0%, 100% { opacity: 0.1; }

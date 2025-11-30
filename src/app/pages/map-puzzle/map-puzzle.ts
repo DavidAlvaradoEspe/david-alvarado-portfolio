@@ -36,8 +36,8 @@ import {TranslateDirective} from '@ngx-translate/core';
 type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 
 const PUZZLE_CONFIG = {
-  SEQUENCE: ['right', 'down', 'left'] as SwipeDirection[],
-  SEQUENCE_DISPLAY: ['right', 'down', 'left'],
+  SEQUENCE: ['right'] as SwipeDirection[],
+  SEQUENCE_DISPLAY: ['right'],
   SWIPE_THRESHOLD: 50,
   FLOATING_SPEED: 2.5,
   FLOATING_AMPLITUDE: 0.015,
@@ -158,6 +158,10 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
       await this.loadOuterMapModel();
 
       this.setupInteraction();
+      if(this.babylonService.currentCamera){
+        this.babylonService.currentCamera.alpha = Math.PI;
+        this.babylonService.currentCamera.beta = 0;
+      }
       this.finalizeSceneSetup();
     } catch (error) {
       console.error('Failed to initialize treasure map:', error);
