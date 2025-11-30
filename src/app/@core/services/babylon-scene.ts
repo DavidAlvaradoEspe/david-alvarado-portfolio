@@ -373,7 +373,6 @@ export class BabylonSceneService implements OnDestroy {
     }
 
     if (setLimits) this.setCameraRadiusLimits();
-    this.saveCameraInitialPosition();
   }
 
   private setCameraRadiusLimits() {
@@ -383,7 +382,7 @@ export class BabylonSceneService implements OnDestroy {
     this.camera.upperRadiusLimit = radius * CAMERA_CONFIG.RADIUS_UPPER_LIMIT_RATIO;
   }
 
-  private saveCameraInitialPosition() {
+  public saveCameraInitialPosition() {
     if (!this.camera || this.cameraInitialAlpha !== null) return;
     this.cameraInitialAlpha = this.camera.alpha;
     this.cameraInitialBeta = this.camera.beta;

@@ -161,6 +161,7 @@ export class MapPuzzleComponent implements OnInit, AfterViewInit, OnDestroy {
       if(this.babylonService.currentCamera){
         this.babylonService.currentCamera.alpha = Math.PI;
         this.babylonService.currentCamera.beta = 0;
+        this.babylonService.saveCameraInitialPosition();
       }
       this.finalizeSceneSetup();
     } catch (error) {
