@@ -39,6 +39,18 @@ export const CV_DATA_ES: CVSection[] = [
     position: [-4, 0, 2], // Left
     content: [
       {
+        company: "GoData Banco Internacional",
+        role: "Líder Técnico",
+        period: "2024 - 2025",
+        desc: "Dirigí la digitalización de operaciones bancarias.",
+        highlights: [
+          "Lideré un equipo de 4 desarrolladores usando metodologías Agile/Scrum.",
+          "Diseñé la arquitectura y desarrollé un sistema de gestión completo de manejo de pólizas bancarias.",
+          "Desarrollo colaborativo en migración de Java Spring Boot desde arquitectura MCV a Hexagonal, con autenticación JWT, automatizaciones CRON, JPA Y APIs Rest.",
+          "Desplegué componentes habilitantes (FE + BE) en JBoss (JAR, WAR y EAR), asegurando operación estable y segura del sistema."
+        ]
+      },
+      {
         company: "StickerStoke S.A.S",
         role: "Líder Técnico Front-End",
         period: "2021 - 2025",
@@ -48,17 +60,6 @@ export const CV_DATA_ES: CVSection[] = [
           "Desarrollé e implementé herramientas internas que mejoraron la organización del trabajo, redujeron tiempos de desarrollo y aumentaron la productividad del equipo.",
           "Gestioné pipelines AWS/Docker para eficiencia CI/CD.",
           "Implementé un ecosistema de e-commerce completo: marketplace, carrito de compras, pagos, facturación y panel administrativo."
-        ]
-      },
-      {
-        company: "GoData Ecuador",
-        role: "Líder Técnico",
-        period: "2020 - 2021",
-        desc: "Dirigí la digitalización de operaciones bancarias.",
-        highlights: [
-          "Lideré un equipo de 4 desarrolladores usando metodologías Agile/Scrum.",
-          "Diseñé la arquitectura y desarrollé un sistema de gestión completo de manejo de pólizas bancarias.",
-          "Supervisé despliegues en JBoss y coordinación de integración con Back-End Java-Spring Boot, asegurando un funcionamiento estable y seguro del sistema."
         ]
       },
       {

@@ -39,6 +39,18 @@ export const CV_DATA: CVSection[] = [
     position: [-4, 0, 2], // Left
     content: [
       {
+        company: "GoData Banco Internacional",
+        role: "Tech Lead",
+        period: "2024 - 2025",
+        desc: "Directed banking operations digitalization.",
+        highlights: [
+          "Led a squad of 4 developers using Agile/Scrum methodologies.",
+          "Designed the architecture and developed a complete management system for banking policy handling.",
+          "Collaborated on migrating a Java Spring Boot application from an MVC architecture to Hexagonal Architecture, implementing JWT authentication, CRON automations, JPA, and REST APIs.",
+          "Deployed enabling components (FE + BE) on JBoss (JAR, WAR, and EAR), ensuring stable and secure system operation."
+        ]
+      },
+      {
         company: "StickerStoke S.A.S",
         role: "Front-End Tech Lead",
         period: "2021 - 2025",
@@ -48,17 +60,6 @@ export const CV_DATA: CVSection[] = [
           "Developed and implemented internal tools that improved work organization, reduced development times and increased team productivity.",
           "Managed AWS/Docker pipelines for CI/CD efficiency.",
           "Implemented a complete e-commerce ecosystem: marketplace, shopping cart, payments, billing and administrative panel."
-        ]
-      },
-      {
-        company: "GoData Ecuador",
-        role: "Tech Lead",
-        period: "2020 - 2021",
-        desc: "Directed banking operations digitalization.",
-        highlights: [
-          "Led a squad of 4 developers using Agile/Scrum methodologies.",
-          "Designed the architecture and developed a complete management system for banking policy handling.",
-          "Supervised JBoss deployments and backend integration coordination with Java-Spring Boot, ensuring stable and secure system operation."
         ]
       },
       {
