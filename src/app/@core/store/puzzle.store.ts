@@ -18,28 +18,28 @@ export class PuzzleStore {
   public readonly isUnlocked = this._isUnlocked.asReadonly();
   public readonly isLoading = this._isLoading.asReadonly();
 
-  // Load state from sessionStorage
+  // Load state from localStorage
   private loadFromStorage(): PuzzleStateStorage {
     try {
-      const stored = sessionStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         return JSON.parse(stored);
       }
     } catch (e) {
-      console.warn('Failed to load puzzle state from sessionStorage', e);
+      console.warn('Failed to load puzzle state from localStorage', e);
     }
     return { isUnlocked: false };
   }
 
-  // Save state to sessionStorage
+  // Save state to localStorage
   private saveToStorage(): void {
     try {
       const state: PuzzleStateStorage = {
         isUnlocked: this._isUnlocked()
       };
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
-      console.warn('Failed to save puzzle state to sessionStorage', e);
+      console.warn('Failed to save puzzle state to localStorage', e);
     }
   }
 

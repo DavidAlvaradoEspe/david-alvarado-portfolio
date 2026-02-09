@@ -8,12 +8,14 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./pages/language-select/language-select.component').then(m => m.LanguageSelectComponent),
-    title: 'David Alvarado - Select Language'
+    title: 'David Alvarado - Select Language',
+    canActivate: [puzzleLockedGuard]
   },
   {
     path: 'select-language',
     component: LanguageSelectComponent,
-    title: 'David Alvarado - Select Language'
+    title: 'David Alvarado - Select Language',
+    canActivate: [puzzleLockedGuard]
   },
   {
     path: 'map-puzzle',
