@@ -51,7 +51,6 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/",
               "budgets": [
                 {
                   "type": "initial",
@@ -85,13 +84,6 @@
             }
           },
           "defaultConfiguration": "development"
-        },
-        "deploy": {
-          "builder": "angular-cli-ghpages:deploy",
-          "options": {
-            "buildTarget": "t-p-portfolio:build:production",
-            "baseHref": "/"
-          }
         },
         "test": {
           "builder": "@angular/build:unit-test"
