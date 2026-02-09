@@ -98,6 +98,28 @@
               @for (project of section.content; track project.name) {
                 <div class="project-card">
                   <div class="card-glow"></div>
+                  <div class="project-image">
+                    @if (project.link) {
+                      <a
+                        class="project-image-link"
+                        [href]="project.link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <img
+                          [src]="project.image || 'assets/images/projects/project-placeholder.svg'"
+                          [alt]="project.name + ' preview'"
+                          loading="lazy"
+                        />
+                      </a>
+                    } @else {
+                      <img
+                        [src]="project.image || 'assets/images/projects/project-placeholder.svg'"
+                        [alt]="project.name + ' preview'"
+                        loading="lazy"
+                      />
+                    }
+                  </div>
                   <div class="project-header">
                     <span class="category">{{ project.category }}</span>
                     <h3>{{ project.name }}</h3>

@@ -243,7 +243,7 @@ public/assets/
 ├── textures/            # Material textures
 │   └── environmentSpecular.env  # HDR environment map
 └── images/              # Static images
-    └── david_tp.jpg     # Profile photo
+    └── DavidAboutMe.jpg     # Profile photo
 ```
 
 ## 🚀 Deployment

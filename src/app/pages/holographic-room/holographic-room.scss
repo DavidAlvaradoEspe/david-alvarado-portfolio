@@ -104,7 +104,9 @@
       border: 1px solid rgba(0, 255, 255, 0.3);
       color: #00ffff;
       width: 1.8rem;
-      height: 100%;
+      height: 1.8rem;
+      padding: 0;
+      line-height: 1;
       aspect-ratio: 1/1;
       border-radius: 50%;
       cursor: pointer;
@@ -113,6 +115,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
+
+      .icon {
+        display: block;
+        line-height: 1;
+      }
 
       &:hover {
         background: rgba(0, 255, 255, 0.2);
@@ -395,6 +402,31 @@
     opacity: 0;
     transition: opacity 0.4s;
     pointer-events: none;
+  }
+
+  .project-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    background: rgba(0, 255, 255, 0.05);
+
+    .project-image-link {
+      display: block;
+      width: 100%;
+      height: 100%;
+      text-decoration: none;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
   }
 
   .project-header {

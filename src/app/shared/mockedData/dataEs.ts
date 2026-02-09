@@ -15,7 +15,7 @@ export const CV_DATA_ES: CVSection[] = [
     type: 'about',
     position: [0, 2, 0],
     content: {
-      avatar: "assets/images/david_tp.jpg",
+      avatar: "assets/images/DavidAboutMe.jpg",
       role: "Full-Stack Developer (Front-end Focused)",
       location: "Ecuador",
       bio: [
@@ -86,19 +86,23 @@ export const CV_DATA_ES: CVSection[] = [
         name: "3DCAL",
         category: "Desarrollo de Producto Principal",
         description: "Desarrollé las funcionalidades principales del producto, incluyendo un ecosistema completo de e-commerce, sitio de administración y un configurador y editor de vehículos 3D en tiempo real.",
-        stack: ["Angular", "Babylon.js", "NestJS", "Docker", "AWS", "D3.js","Electron.js", "Astro"],
+        image: "assets/images/projects/3dcalHero.jpg",
+        stack: ["Angular", "Babylon.js", "Nest.js", "Docker", "AWS", "D3.js","Electron.js", "Astro"],
         link: "https://3dcal.com/"
       },
       {
-        name: "Plugins WP Personalizados",
-        category: "Herramientas de Desarrollo",
-        description: "Desarrollé un plugin para Calculador Costos de Envío en tiempo real para couriers ecuatorianos, integrado en la tienda de Woocommerce.",
-        stack: ["PHP", "WordPress API", "REST", "WOOCOMMERCE"]
+        name: "SoundContent360",
+        category: "DESARROLLO DE PRODUCTO PRINCIPAL",
+        description: "Portfolio end-to-end para el ingeniero de sonido David Juarez. Incluye una experiencia de audio binaural basado en objetos (Binaural UI propio, control por objeto, EQ, js-ambisonics con HRTFs personalizados), SEO completo y formulario de contacto protegido con Turnstile y envío vía Cloudflare Worker + Resend.",
+        image: "assets/images/projects/soundContentHero.jpg",
+        stack: ["React", "TypeScript", "Vite", "Web Audio", "Cloudflare Worker", "Turnstile", "Resend"],
+        link: "https://soundcontent360.com/"
       },
       {
         name: "AMPDC",
         category: "Trabajo Voluntario",
         description: "Fui voluntario de la ONU para mantenimiento del sitio, actualización de secciones/paletas de colores, e integración de pagos. Implementación de analytics (Clarify, GA, FB Pixel) y publicación de artículos.",
+        image: "assets/images/projects/AMPDCHero.jpg",
         stack: ["WordPress", "Analytics", "Plugins"],
         link: "https://psicologiaydesarrollocomunitario.com/"
       },
@@ -106,6 +110,7 @@ export const CV_DATA_ES: CVSection[] = [
         name: "PBYA",
         category: "Soluciones Web",
         description: "Resolví problemas críticos de migración de hosting, diagnostiqué y reparé errores de código con refactoring profundo, y desarrollé un nuevo módulo personalizado para el sector industrial.",
+        image: "assets/images/projects/PBYAHero.jpg",
         stack: ["Headless WP", "Gatsby", "React"],
         link: "https://pbya.com/"
       },
@@ -121,7 +126,7 @@ export const CV_DATA_ES: CVSection[] = [
       core: [
         { name: "Angular & TS", level: 98 },
         { name: "Babylon.js", level: 96 },
-        { name: "NestJs", level: 90 },
+        { name: "Nest.js", level: 90 },
         { name: "Three.js", level: 93 },
         { name: "Vue.js", level: 80 },
         { name: "React", level: 70 },
@@ -131,7 +136,7 @@ export const CV_DATA_ES: CVSection[] = [
         "Java", "C#", "Python", "Javascript", "HTML/CSS", "TypeScript", "PHP"
       ],
       frameworks: [
-        "Angular", "Vue 3", "Astro", "Electron.js", "Microservicios", "API REST", "NodeJs", "NestJS", "Express.js"
+        "Angular", "Vue 3", "Astro", "Electron.js", "Microservicios", "API REST", "Node.js", "Nest.js", "Express.js"
       ],
       data: [
         "PostgreSQL", "MongoDB", "MySQL", "SQLite"

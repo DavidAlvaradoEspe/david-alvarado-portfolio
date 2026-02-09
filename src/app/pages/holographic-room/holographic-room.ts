@@ -90,7 +90,7 @@ export class HolographicRoomComponent implements OnInit, OnDestroy {
       "jobTitle": "Full Stack Developer",
       "description": "Creative technologist specializing in full-stack development and interactive web experiences",
       "url": window.location.origin,
-      "image": `${window.location.origin}/assets/images/david_tp.jpg`,
+      "image": `${window.location.origin}/assets/images/DavidAboutMe.jpg`,
       "sameAs": []
     });
     document.head.appendChild(script);

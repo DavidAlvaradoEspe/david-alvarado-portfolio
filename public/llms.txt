@@ -214,7 +214,7 @@ src/app/
 - **flame.png**: Particle textures
 
 ### Images
-- **david_tp.jpg**: Profile photo (Treasure Planet themed)
+- **DavidAboutMe.jpg**: Profile photo (Treasure Planet themed)
 - **map-icon.png**: Map puzzle icon
 - **opened-map.png**: Unlocked map state
 

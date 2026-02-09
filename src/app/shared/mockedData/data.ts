@@ -15,7 +15,7 @@ export const CV_DATA: CVSection[] = [
     type: 'about',
     position: [0, 2, 0],
     content: {
-      avatar: "assets/images/david_tp.jpg",
+      avatar: "assets/images/DavidAboutMe.jpg",
       role: "Full-Stack Developer (Front-end Focused)",
       location: "Ecuador",
       bio: [
@@ -86,19 +86,23 @@ export const CV_DATA: CVSection[] = [
         name: "3DCAL",
         category: "Core Product Development",
         description: "Developed the main product functionalities, including a complete e-commerce ecosystem, administration site and a real-time 3D vehicle configurator and editor.",
-        stack: ["Angular", "Babylon.js", "NestJS", "Docker", "AWS", "D3.js", "Electron.js", "Astro"],
+        image: "assets/images/projects/3dcalHero.jpg",
+        stack: ["Angular", "Babylon.js", "Nest.js", "Docker", "AWS", "D3.js", "Electron.js", "Astro"],
         link: "https://3dcal.com/"
       },
       {
-        name: "Custom WP Plugins",
-        category: "Development Tools",
-        description: "Developed a real-time Shipping Cost Calculator plugin for Ecuadorian couriers, integrated with WooCommerce store.",
-        stack: ["PHP", "WordPress API", "REST", "WooCommerce"]
+        name: "SoundContent360",
+        category: "PRIMARY PRODUCT DEVELOPMENT",
+        description: "End-to-end portfolio for sound engineer David Juarez. Features an object-based binaural audio experience (custom Binaural UI, per-object controls, EQ, js-ambisonics with custom HRTFs), plus full SEO setup and a Turnstile-protected contact form powered by a Cloudflare Worker + Resend.",
+        image: "assets/images/projects/soundContentHero.jpg",
+        stack: ["React", "TypeScript", "Vite", "Web Audio", "Cloudflare Worker", "Turnstile", "Resend"],
+        link: "https://soundcontent360.com/"
       },
       {
         name: "AMPDC",
         category: "Volunteer Work",
         description: "Volunteered for UN to maintain the site, updated sections/color palettes, and integrated payments. Implemented analytics (Clarify, GA, FB Pixel) and published articles.",
+        image: "assets/images/projects/AMPDCHero.jpg",
         stack: ["WordPress", "Analytics", "Plugins"],
         link: "https://psicologiaydesarrollocomunitario.com/"
       },
@@ -106,6 +110,7 @@ export const CV_DATA: CVSection[] = [
         name: "PBYA",
         category: "Web Solutions",
         description: "Solved critical hosting migration issues, diagnosed and repaired code errors with deep refactoring, and developed a new custom module for the industrial sector.",
+        image: "assets/images/projects/PBYAHero.jpg",
         stack: ["Headless WP", "Gatsby", "React"],
         link: "https://pbya.com/"
       },
@@ -121,7 +126,7 @@ export const CV_DATA: CVSection[] = [
       core: [
         { name: "Angular & TS", level: 98 },
         { name: "Babylon.js", level: 96 },
-        { name: "NestJs", level: 90 },
+        { name: "Nest.js", level: 90 },
         { name: "Three.js", level: 93 },
         { name: "Vue.js", level: 80 },
         { name: "React", level: 70 },
@@ -131,7 +136,7 @@ export const CV_DATA: CVSection[] = [
         "Java", "C#", "Python", "Javascript", "HTML/CSS", "TypeScript", "PHP"
       ],
       frameworks: [
-        "Angular", "Vue 3", "Astro", "Electron.js", "Microservices", "REST API", "NodeJs", "NestJS", "Express.js"
+        "Angular", "Vue 3", "Astro", "Electron.js", "Microservices", "REST API", "Node.js", "Nest.js", "Express.js"
       ],
       data: [
         "PostgreSQL", "MongoDB", "MySQL", "SQLite"
