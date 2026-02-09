@@ -1,8 +1,5 @@
 import { Routes } from '@angular/router';
-import { MapPuzzleComponent } from './pages/map-puzzle/map-puzzle';
-import { HolographicRoomComponent } from './pages/holographic-room/holographic-room';
 import { puzzleLockedGuard, puzzleUnlockedGuard } from './@core/guards';
-import {LanguageSelectComponent} from '@app/pages/language-select/language-select.component';
 
 export const routes: Routes = [
   {
@@ -13,19 +10,19 @@ export const routes: Routes = [
   },
   {
     path: 'select-language',
-    component: LanguageSelectComponent,
+    loadComponent: () => import('./pages/language-select/language-select.component').then(m => m.LanguageSelectComponent),
     title: 'David Alvarado - Select Language',
     canActivate: [puzzleLockedGuard]
   },
   {
     path: 'map-puzzle',
-    component: MapPuzzleComponent,
+    loadComponent: () => import('./pages/map-puzzle/map-puzzle').then(m => m.MapPuzzleComponent),
     title: 'David Alvarado - Map Puzzle',
     canActivate: [puzzleLockedGuard]
   },
   {
     path: 'holographic-room',
-    component: HolographicRoomComponent,
+    loadComponent: () => import('./pages/holographic-room/holographic-room').then(m => m.HolographicRoomComponent),
     title: 'David Alvarado - Holographic Room',
     canActivate: [puzzleUnlockedGuard]
   },

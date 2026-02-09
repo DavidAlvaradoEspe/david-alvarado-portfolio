@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SplashScreenComponent } from './shared/components/splash-screen/splash-screen.component';
-import { I18nService } from './i18n';
+import { I18nService } from '@app/i18n';
 
 @Component({
   selector: 'app-root',

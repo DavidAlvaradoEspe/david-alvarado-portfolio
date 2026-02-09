@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { I18nService } from '@app/i18n';
+import { I18nService } from '@app/i18n/i18n.service';
 import {environment} from '@env/environment';
 import {TranslateDirective} from '@ngx-translate/core';
 

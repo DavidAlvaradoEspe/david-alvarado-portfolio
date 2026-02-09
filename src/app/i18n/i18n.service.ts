@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
 import enUS from '../translations/en-US.json';
 import esES from '../translations/es-ES.json';
-import { Logger } from '@app/@core/services';
+import { Logger } from '@app/@core/services/misc/logger.service';
 import { environment } from '@env/environment';
 
 const log = new Logger('I18nService');
