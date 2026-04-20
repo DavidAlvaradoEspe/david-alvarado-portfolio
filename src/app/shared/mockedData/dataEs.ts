@@ -99,6 +99,22 @@ export const CV_DATA_ES: CVSection[] = [
         link: "https://soundcontent360.com/"
       },
       {
+        name: "ROTTU Systems",
+        category: "Sitio Corporativo",
+        description: "Desarrollé un sitio orientado a conversión para una software house que presenta servicios de software a medida, aplicaciones móviles, desarrollo web, UX/UI y nube para empresas que buscan optimizar procesos y acelerar su crecimiento digital.",
+        image: "assets/images/projects/rottu.jpg",
+        stack: ["React", "Vite", "React Router", "Tailwind CSS"],
+        link: "https://www.rottusystems.com/"
+      },
+      {
+        name: "ChatPage",
+        category: "Producto Propio",
+        description: "Creé y lancé mi propio servicio: una página profesional simple para WhatsApp, Instagram y TikTok, pensada para que negocios y creadores en LATAM conviertan visitas en conversaciones, leads y ventas.",
+        image: "assets/images/projects/chatpage.jpg",
+        stack: ["Angular", "Tailwind CSS", "RxJS","Hono","Cloudflare","Cloudflare workers"],
+        link: "https://chatpage.me/"
+      },
+      {
         name: "AMPDC",
         category: "Trabajo Voluntario",
         description: "Fui voluntario de la ONU para mantenimiento del sitio, actualización de secciones/paletas de colores, e integración de pagos. Implementación de analytics (Clarify, GA, FB Pixel) y publicación de artículos.",

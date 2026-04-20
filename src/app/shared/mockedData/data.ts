@@ -99,6 +99,22 @@ export const CV_DATA: CVSection[] = [
         link: "https://soundcontent360.com/"
       },
       {
+        name: "ROTTU Systems",
+        category: "Corporate Website",
+        description: "Built a conversion-focused site for a software studio that showcases custom software, mobile app, web development, UX/UI, and cloud services for companies looking to optimize processes and accelerate digital growth.",
+        image: "assets/images/projects/rottu.jpg",
+        stack: ["React", "Vite", "React Router", "Tailwind CSS"],
+        link: "https://www.rottusystems.com/"
+      },
+      {
+        name: "ChatPage",
+        category: "Own Product",
+        description: "Created and launched my own service: a simple professional page builder for WhatsApp, Instagram, and TikTok that helps businesses and creators in LATAM turn visits into conversations, leads, and sales.",
+        image: "assets/images/projects/chatpage.jpg",
+        stack: ["Angular", "Tailwind CSS", "RxJS","Hono","Cloudflare","Cloudflare workers"],
+        link: "https://chatpage.me/"
+      },
+      {
         name: "AMPDC",
         category: "Volunteer Work",
         description: "Volunteered for UN to maintain the site, updated sections/color palettes, and integrated payments. Implemented analytics (Clarify, GA, FB Pixel) and published articles.",
