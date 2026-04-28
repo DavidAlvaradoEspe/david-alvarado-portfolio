@@ -39,6 +39,19 @@ export const CV_DATA: CVSection[] = [
     position: [-4, 0, 2], // Left
     content: [
       {
+        company: "BairesDev",
+        role: "BD Software Engineer",
+        period: "02-2026 - Present",
+        desc: "Contributing to high-impact internal AI applications used across the company.",
+        highlights: [
+          "Supported and enhanced two production AI tools with high internal adoption across BairesDev.",
+          "Worked on an AI-powered email resolution platform with reusable, multi-piece templates that streamline email generation.",
+          "Contributed to an internal ChatGPT-like application for company data research, general AI assistance, and multimodal interactions.",
+          "Led a major front-end refactor of the email resolution platform, improving architecture, maintainability, and scalability.",
+          "Worked with Angular 21, TypeScript, RxJS, REST APIs, Server-Sent Events, AWS, Jira, and AI agentic workflows."
+        ]
+      },
+      {
         company: "GoData Banco Internacional",
         role: "Tech Lead",
         period: "2024 - 2025",

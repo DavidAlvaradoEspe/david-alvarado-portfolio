@@ -39,6 +39,19 @@ export const CV_DATA_ES: CVSection[] = [
     position: [-4, 0, 2], // Left
     content: [
       {
+        company: "BairesDev",
+        role: "BD Software Engineer",
+        period: "02-2026 - Presente",
+        desc: "Contribuyo en aplicaciones internas de IA de alto impacto utilizadas transversalmente en la compañía.",
+        highlights: [
+          "Brindé soporte y mejoras a dos herramientas de IA en producción con alto nivel de uso interno en BairesDev.",
+          "Trabajé en una plataforma de resolución de correos con IA, basada en plantillas reutilizables compuestas por múltiples piezas.",
+          "Contribuí a una aplicación interna tipo ChatGPT para investigar información de la compañía, asistencia general de IA e interacciones multimodales.",
+          "Realicé un refactor importante del front-end de la plataforma de correos, mejorando arquitectura, mantenibilidad y escalabilidad.",
+          "Trabajé con Angular 21, TypeScript, RxJS, APIs REST, Server-Sent Events, AWS, Jira y workflows agénticos de IA."
+        ]
+      },
+      {
         company: "GoData Banco Internacional",
         role: "Líder Técnico",
         period: "2024 - 2025",
